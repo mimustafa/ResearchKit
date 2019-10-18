@@ -37,7 +37,7 @@
 "CONSENT_REVIEW_INSTRUCTION" = "Granska formuläret nedan och tryck på Godkänn om du är redo att fortsätta.";
 "CONSENT_REVIEW_ALERT_TITLE" = "Granska";
 "CONSENT_SIGNATURE_TITLE" = "Signatur";
-"CONSENT_SIGNATURE_INSTRUCTION" = "Signera med hjälp av fingret på raden nedan.";
+"CONSENT_SIGNATURE_INSTRUCTION" = "Signera med hjälp av fingret i rutan nedan.";
 "CONSENT_SIGNATURE_PLACEHOLDER" = "Signera här";
 "CONSENT_PAGE_NUMBER_FORMAT" = "Sidan %1$ld av %2$ld";
 
@@ -66,7 +66,7 @@
 "CONSENT_SHARING_TITLE" = "Delningsalternativ";
 "CONSENT_SHARE_WIDELY_%@" = "Dela mina data med %@ och kvalificerade forskare över hela världen";
 "CONSENT_SHARE_ONLY_%@" = "Dela mina data endast med %@";
-"CONSENT_SHARING_DESCRIPTION_%@" = "%@ kommer att få dina studiedata från deltagandet i den här studien.\n\nGenom att dela dina kodade studiedata mer brett (utan information som ditt namn) kan vi gagna både denna och framtida forskning.";
+"CONSENT_SHARING_DESCRIPTION_%@" = "%@ kommer att få dina studiedata från din medverkan i denna studie.\n\nVidare delning av dina kodade studiedata (utan ditt namn eller liknande information) kan vara till nytta för denna och framtida forskning.";
 "LEARN_MORE_CONSENT_SHARING" = "Läs mer om datadelning";
 
 /* Lines beneath typewritten signatures on documents. Argument is the title of the signatory, e.g. "Participant's Signature" */
@@ -75,7 +75,7 @@
 "CONSENT_DOC_LINE_DATE" = "Datum";
 
 /* Progress indication (in navigation bar). */
-"STEP_PROGRESS_FORMAT" = "Steg %1$@ av %2$@";
+"STEP_PROGRESS_FORMAT" = "%1$@ av %2$@";
 
 /* Alert for out of range values. */
 "RANGE_ALERT_TITLE" = "Ogiltigt värde";
@@ -115,6 +115,8 @@
 "GENDER_FORM_ITEM_PLACEHOLDER" = "Välj ett kön";
 "DOB_FORM_ITEM_TITLE" = "Födelsedatum";
 "DOB_FORM_ITEM_PLACEHOLDER" = "Välj ett datum";
+"PHONE_NUMBER_FORM_ITEM_TITLE" = "Telefonnummer";
+"PHONE_NUMBER_FORM_ITEM_PLACEHOLDER" = "+1 (555) 555 5555";
 
 /* Verification step */
 "VERIFICATION_NAV_TITLE" = "Verifiering";
@@ -159,6 +161,14 @@
 "BLOOD_TYPE_O+" = "O+";
 "BLOOD_TYPE_O-" = "O-";
 
+/* Fitzpatrick Skin types */
+"FITZPATRICK_SKIN_TYPE_I" = "Typ I";
+"FITZPATRICK_SKIN_TYPE_II" = "Typ II";
+"FITZPATRICK_SKIN_TYPE_III" = "Typ III";
+"FITZPATRICK_SKIN_TYPE_IV" = "Typ IV";
+"FITZPATRICK_SKIN_TYPE_V" = "Typ V";
+"FITZPATRICK_SKIN_TYPE_VI" = "Typ VI";
+
 /* Gender values. */
 "GENDER_FEMALE" = "Kvinna";
 "GENDER_MALE" = "Man";
@@ -172,6 +182,13 @@
 "MEASURING_UNIT_CM" = "cm";
 "MEASURING_UNIT_FT" = "fot";
 "MEASURING_UNIT_IN" = "tum";
+"MEASURING_UNIT_KG" = "kg";
+"MEASURING_UNIT_LB" = "lb";
+"MEASURING_UNIT_OZ" = "uns";
+
+/* Limb values. */
+"LIMB_LEFT" = "vänster";
+"LIMB_RIGHT" = "höger";
 
 /* Default placeholders to request answers in a questionnaire. */
 "PLACEHOLDER_TEXT_OR_NUMBER" = "Tryck för att svara";
@@ -184,6 +201,7 @@
 "BUTTON_CANCEL" = "Avbryt";
 "BUTTON_OK" = "OK";
 "BUTTON_CLEAR" = "Rensa";
+"BUTTON_APPLY" = "Använd";
 "BUTTON_DISAGREE" = "Avböj";
 "BUTTON_DONE" = "Klar";
 "BUTTON_GET_STARTED" = "Kom igång";
@@ -198,12 +216,14 @@
 "BUTTON_SAVE" = "Spara";
 "BUTTON_CLEAR_ANSWER" = "Rensa svar";
 "BUTTON_READ_ONLY_MODE" = "Det här svaret kan inte ändras.";
+"BUTTON_COPYRIGHT" = "Copyright";
 
 /* General active tasks. */
 "COUNTDOWN_LABEL" = "Startar aktivitet om";
 "TASK_COMPLETE_TITLE" = "Aktiviteten är klar";
 "TASK_COMPLETE_TEXT" = "Dina data kommer att analyseras, och du blir meddelad när resultaten är klara.";
 "COUNTDOWN_SPOKEN_REMAINING_%@" = "%@ sekunder återstår.";
+"TOUCH_ANYWHERE_LABEL" = "Fortsätt genom att trycka var som helst";
 
 /* Image capture step. */
 "CAPTURE_BUTTON_CAPTURE_IMAGE" = "Spara bild";
@@ -231,15 +251,15 @@
 "WALK_TASK_TITLE" = "Gång och balans";
 "WALK_INTRO_TEXT" = "Den här aktiviteten mäter din gångstil och balans medan du går och står still. Fortsätt endast om du säkert kan gå utan hjälp.";
 "WALK_INTRO_2_TEXT_%ld" = "Hitta en plats där du säkert kan gå ungefär %ld steg i en rak linje utan hjälp.";
-"WALK_INTRO_2_DETAIL" = "Placera telefonen i en ficka eller väska och följ de talade anvisningarna.";
+"WALK_INTRO_2_DETAIL" = "Placera enheten i en ficka eller väska och följ de talade anvisningarna.";
 "WALK_STAND_VOICE_INSTRUCTION_FORMAT" = "Stå nu stilla under %@.";
 "WALK_STAND_INSTRUCTION_FORMAT" = "Stå stilla under %@.";
 "WALK_RETURN_INSTRUCTION_FORMAT" = "Vänd om och gå tillbaka till utgångsplatsen.";
 "WALK_OUTBOUND_INSTRUCTION_FORMAT" = "Gå upp till %ld steg i en rak linje.";
 
 /* Short walk back and forth. */
-"WALK_INTRO_2_TEXT_BACK_AND_FORTH_INSTRUCTION" = "Hitta en plats där du tryggt kan gå fram och tillbaka i en rät linje. Försök att gå kontinuerligt genom att vända dig om vid slutet av linjen, som om du gick runt en kon.\nDärefter blir du ombedd att vända dig ett helt varv och sedan stå stilla med armarna längs sidorna och fötterna i ungefär axelbredd.";
-"WALK_INTRO_2_DETAIL_BACK_AND_FORTH_INSTRUCTION" = "Tryck på Kom igång när du är redo att börja.\nPlacera sedan telefonen i en ficka eller väska och följ de talade anvisningarna.";
+"WALK_INTRO_2_TEXT_BACK_AND_FORTH_INSTRUCTION" = "Hitta en plats där du tryggt kan gå fram och tillbaka i en rät linje. Försök att gå kontinuerligt genom att vända dig om vid slutet av linjen, som om du gick runt en kon.\n\nDärefter blir du ombedd att vända dig ett helt varv och sedan stå stilla med armarna längs sidorna och fötterna i ungefär axelbredd.";
+"WALK_INTRO_2_DETAIL_BACK_AND_FORTH_INSTRUCTION" = "Tryck på Kom igång när du är redo att börja.\nPlacera sedan enheten i en ficka eller väska och följ de talade anvisningarna.";
 "WALK_BACK_AND_FORTH_INSTRUCTION_FORMAT" = "Gå fram och tillbaka i en rät linje under %@. Gå som du vanligtvis gör.";
 "WALK_BACK_AND_FORTH_STAND_INSTRUCTION_FORMAT" = "Vänd dig ett helt varv och stå sedan stilla under %@.";
 "WALK_BACK_AND_FORTH_FINISHED_VOICE" = "Du har slutfört aktiviteten.";
@@ -249,7 +269,7 @@
 "TAPPING_TASK_TITLE_RIGHT" = "Höger hand";
 "TAPPING_TASK_TITLE_LEFT" = "Vänster hand";
 "TAPPING_INTRO_TEXT" = "Den här aktiviteten mäter din tryckhastighet.";
-"TAPPING_INTRO_TEXT_2_REST_PHONE" = "Lägg telefonen på en slät yta.";
+"TAPPING_INTRO_TEXT_2_REST_PHONE" = "Lägg enheten på en slät yta.";
 "TAPPING_INTRO_TEXT_2_MOST_AFFECTED" = "Använd två fingrar på samma hand till att omväxlande trycka på knapparna på skärmen.";
 "TAPPING_INTRO_TEXT_2_RIGHT_FIRST" = "Använd två fingrar på högra handen till att omväxlande trycka på knapparna på skärmen.";
 "TAPPING_INTRO_TEXT_2_LEFT_FIRST" = "Använd två fingrar på vänstra handen till att omväxlande trycka på knapparna på skärmen.";
@@ -265,12 +285,20 @@
 "TAPPING_INSTRUCTION_LEFT" = "Tryck på knapparna med VÄNSTRA handen.";
 "TAPPING_SKIP_TITLE" = "Hoppa över den här handen";
 
+/* Amsler Grid Task.*/
+"AMSLER_GRID_TITLE" = "Amsler-nät";
+"AMSLER_GRID_INTRO_TEXT" = "Den här aktiviteten kan upptäcka synproblem hos användaren.";
+"AMSLER_GRID_INSTRUCTION_TEXT" = "Håll enheten 30 cm från ansiktet och i ögonhöjd under hela testet.";
+"AMSLER_GRID_INSTRUCTION_DETAIL_TEXT" = "Blunda med %@ och fokusera på punkten i mitten av det kvadratiska rutnätet.\n\nOm du ser förvrängningar, exempelvis suddiga eller vågiga linjer, märker du ut dem med fingret eller en ritpenna.\n\nSvep åt vänster utanför rutnätet när du är klar.";
+"AMSLER_GRID_LEFT_EYE" = "vänster öga";
+"AMSLER_GRID_RIGHT_EYE" = "höger öga";
+
 /* Audio active task. */
 "AUDIO_TASK_TITLE" = "Röst";
 "AUDIO_CALL_TO_ACTION" = "Tryck på Kom igång för att börja.";
 "AUDIO_INSTRUCTION" = "Säg ”aaah” i mikrofonen så länge du kan.";
 "AUDIO_INTRO_TEXT" = "Ta ett djupt andetag och säg ”aaah” i mikrofonen så länge du kan. Håll röststyrkan stadig så att ljudstaplarna förblir blå.";
-"AUDIO_INTENDED_USE" = "Den här aktiviteten utvärderar din röst genom att spela in den med mikrofonen i nederkanten av telefonen.";
+"AUDIO_INTENDED_USE" = "Den här aktiviteten utvärderar din röst genom att spela in den med mikrofonen i nederkanten av enheten.";
 "AUDIO_TOO_LOUD_LABEL" = "För högt";
 "AUDIO_GENERIC_ERROR_LABEL" = "Kan inte spela in ljud";
 "AUDIO_LEVEL_CHECK_LABEL" = "Vänta medan vi kontrollerar ljudnivån på bakgrundsbullret.";
@@ -280,12 +308,24 @@
 /* Tone audiometry active task. */
 "TONE_AUDIOMETRY_TASK_TITLE" = "Tonaudiometri";
 "TONE_AUDIOMETRY_INTENDED_USE" = "Den här aktiviteten mäter din förmåga att höra olika ljud.";
-"TONE_AUDIOMETRY_INTRO_TEXT" = "Anslut och ta på dig hörlurarna innan du börjar.";
+"TONE_AUDIOMETRY_INTRO_TEXT" = "Anslut och ta på dig hörlurarna innan du börjar.\n\nLjudet kommer att vara väldigt subtilt och liknar inte ett vanligt varningsljud. Ljudet är svagt i början och ökar sakta i ljudstyrka. Koncentrera dig på ljudet och tryck på höger- eller vänsterknappen för att registrera i vilket öra du hör ljudet.";
 "TONE_AUDIOMETRY_CALL_TO_ACTION" = "Tryck på Kom igång för att börja.";
-"TONE_AUDIOMETRY_PREP_TEXT" = "Nu bör du höra en ton. Justera volymen med reglagen på sidan av enheten.\n\nTryck på knappen när du är redo att börja.";
-"TONE_AUDIOMETRY_INSTRUCTION" = "Tryck på knappen varje gång du börjar höra ett ljud.";
+"TONE_AUDIOMETRY_PREP_TEXT" = "Nu bör du höra en ton. Justera volymen med reglagen på sidan av enheten.\n\nTryck på någon av knapparna när du vill börja.";
+"TONE_AUDIOMETRY_INSTRUCTION" = "Varje gång du börjar höra ett ljud ska du trycka på vänster eller höger knapp för att visa vilket öra du hör ljudet i.";
+"TONE_AUDIOMETRY_LABEL_LEFT_EAR" = "Vänster öra";
+"TONE_AUDIOMETRY_LABEL_RIGHT_EAR" = "Höger öra";
 "TONE_LABEL_%@_LEFT" = "%@ Hz, vänster";
 "TONE_LABEL_%@_RIGHT" = "%@ Hz, höger";
+
+/* dBHL Tone audiometry active task. */
+"dBHL_TONE_AUDIOMETRY_TASK_TITLE" = "Tonaudiometri";
+"dBHL_TONE_AUDIOMETRY_INTENDED_USE" = "Den här aktiviteten identifierar en persons hörseltröskvärden i dB HL-skala.";
+"dBHL_TONE_AUDIOMETRY_INTRO_TEXT" = "Se till att ljudet på enheten är inställt på högsta volym.\n\nUnder den här uppgiften kommer en subtil ton att spelas i antingen det högra eller vänstra örat.\n\nLyssna noga och tryck på knappen varje gång du hör en ton.";
+"dBHL_TONE_AUDIOMETRY_ONBOARDING" = "Förberedande frågeformulär.";
+"dBHL_TONE_AUDIOMETRY_ONBOARDING_QUESTION" = "Markera din inställning för ”bättre öra” (om du har ett)";
+"dBHL_TONE_AUDIOMETRY_OPTION_LEFT" = "vänster";
+"dBHL_TONE_AUDIOMETRY_OPTION_RIGHT" = "höger";
+"dBHL_TONE_AUDIOMETRY_OPTION_NO_PREFERENCE" = "ingen inställning";
 
 /* Spatial span memory active task. */
 "SPATIAL_SPAN_MEMORY_TITLE" = "Spatialt minne";
@@ -309,6 +349,7 @@
 "MEMORY_GAME_COMPLETE" = "Spelet är klart";
 "MEMORY_GAME_PAUSED_TITLE" = "Pausat";
 "MEMORY_GAME_PAUSED_MESSAGE" = "Tryck på Nästa när du vill fortsätta";
+"MEMORY_GAME_COPYRIGHT_TEXT" = "Minnesaktiviteten har tagits fram med hjälp av fil.dr Katherine Possin och fil.dr Joel Kramer från University of California i San Francisco i USA.";
 
 /* Reaction time active task. */
 "REACTION_TIME_TASK_TITLE" = "Reaktionstid";
@@ -318,14 +359,64 @@
 "REACTION_TIME_TASK_ATTEMPTS_FORMAT" = "Försök %@ av %@";
 "REACTION_TIME_TASK_ACTIVE_STEP_TITLE" = "Skaka snabbt enheten när den blå cirkeln visas";
 
+/* Stroop active task.*/
+"STROOP_TASK_TITLE" = "Stroop";
+"STROOP_TASK_INTRO1_DETAIL_TEXT" = "Varje gång ett ord visas ska du välja de första två bokstäverna i namnet på den FÄRG som visas.";
+"STROOP_TASK_INTRO2_DETAIL_TEXT" = "Tryck på Kom igång när du vill börja med stroop-aktiviteten.";
+"STROOP_TASK_STEP_TEXT" = "Välj de första två bokstäverna i namnet på den FÄRG som visas.";
+"STROOP_COLOR_RED" = "RÖD";
+"STROOP_COLOR_GREEN" = "GRÖN";
+"STROOP_COLOR_BLUE" = "BLÅ";
+"STROOP_COLOR_YELLOW" = "GUL";
+"STROOP_COLOR_RED_INITIAL" = "Rö";
+"STROOP_COLOR_GREEN_INITIAL" = "Gr";
+"STROOP_COLOR_BLUE_INITIAL" = "Bl";
+"STROOP_COLOR_YELLOW_INITIAL" = "Gu";
+
 /* Tower of Hanoi active task */
 "TOWER_OF_HANOI_TASK_TITLE" = "Tornen i Hanoi";
 "TOWER_OF_HANOI_TASK_INTENDED_USE" = "Den här aktiviteten utvärderar din förmåga att lösa pussel.";
 "TOWER_OF_HANOI_TASK_INTRO_TEXT" = "Flytta hela traven till den markerade plattformen med så få drag som möjligt.";
-"TOWER_OF_HANOI_TASK_TASK_CALL_TO_ACTION" = "Tryck på Kom igång för att börja";
+"TOWER_OF_HANOI_TASK_TASK_CALL_TO_ACTION" = "Tryck på Kom igång för att börja.";
 "TOWER_OF_HANOI_TASK_ACTIVE_STEP_INTRO_TEXT" = "Lös pusslet";
 "TOWER_OF_HANOI_TASK_ACTIVE_STEP_PROGRESS_TEXT" = "Antal drag: %@ \n %@";
 "TOWER_OF_HANOI_TASK_ACTIVE_STEP_SKIP_BUTTON_TITLE" = "Jag kan inte lösa pusslet";
+
+/* Range of Motion active task */
+"RANGE_OF_MOTION_TITLE" = "Rörlighet";
+"LIMB_OPTION_LEFT_OR_RIGHT_ERROR" = "limbOption måste vara vänster eller höger";
+
+/* Knee Range of Motion active task */
+"KNEE_RANGE_OF_MOTION_TITLE_LEFT" = "Rörlighet, vänster knä";
+"KNEE_RANGE_OF_MOTION_TITLE_RIGHT" = "Rörlighet, höger knä";
+"KNEE_RANGE_OF_MOTION_TEXT_INSTRUCTION_0_LEFT" = "Den här aktiviteten mäter hur långt du kan sträcka ditt vänstra knä.";
+"KNEE_RANGE_OF_MOTION_TEXT_INSTRUCTION_0_RIGHT" = "Den här aktiviteten mäter hur långt du kan sträcka ditt högra knä.";
+"KNEE_RANGE_OF_MOTION_TEXT_INSTRUCTION_1_LEFT" = "Sätt dig längst ut på en stol. Du börjar med att lägga enheten på ditt vänstra knä så att det kan mätas. Slå på ljudet på enheten så att du kan höra anvisningarna.";
+"KNEE_RANGE_OF_MOTION_TEXT_INSTRUCTION_1_RIGHT" = "Sätt dig längst ut på en stol. Du börjar med att lägga enheten på ditt högra knä så att det kan mätas. Slå på ljudet på enheten så att du kan höra anvisningarna.";
+"KNEE_RANGE_OF_MOTION_TEXT_INSTRUCTION_2_LEFT" = "Lägg enheten på ditt vänstra knä med skärmen utåt (se bild).";
+"KNEE_RANGE_OF_MOTION_TEXT_INSTRUCTION_2_RIGHT" = "Lägg enheten på ditt högra knä med skärmen utåt (se bild).";
+"KNEE_RANGE_OF_MOTION_TEXT_INSTRUCTION_3_LEFT" = "När du vill börja trycker du på skärmen och sträcker ut ditt vänstra knä så långt du kan. Tryck igen när du är klar.";
+"KNEE_RANGE_OF_MOTION_TEXT_INSTRUCTION_3_RIGHT" = "När du vill börja trycker du på skärmen och sträcker ut ditt högra knä så långt du kan. Tryck igen när du är klar.";
+"KNEE_RANGE_OF_MOTION_TOUCH_ANYWHERE_STEP_INSTRUCTION_LEFT" = "Lägg enheten på vänster knä";
+"KNEE_RANGE_OF_MOTION_TOUCH_ANYWHERE_STEP_INSTRUCTION_RIGHT" = "Lägg enheten på höger knä";
+"KNEE_RANGE_OF_MOTION_SPOKEN_INSTRUCTION_LEFT" = "Sträck ut ditt vänstra knä. Tryck sedan var som helst.";
+"KNEE_RANGE_OF_MOTION_SPOKEN_INSTRUCTION_RIGHT" = "Sträck ut ditt högra knä. Tryck sedan var som helst.";
+
+/* Shoulder Range of Motion active task */
+"SHOULDER_RANGE_OF_MOTION_TITLE_LEFT" = "Rörlighet, vänster axel";
+"SHOULDER_RANGE_OF_MOTION_TITLE_RIGHT" = "Rörlighet, höger axel";
+"SHOULDER_RANGE_OF_MOTION_TEXT_INSTRUCTION_0_LEFT" = "Den här aktiviteten mäter hur långt du kan sträcka din vänstra axel.";
+"SHOULDER_RANGE_OF_MOTION_TEXT_INSTRUCTION_0_RIGHT" = "Den här aktiviteten mäter hur långt du kan sträcka din högra axel.";
+"SHOULDER_RANGE_OF_MOTION_TEXT_INSTRUCTION_1_LEFT" = "Du börjar med att lägga enheten på din vänstra axel så att den kan mätas. Slå på ljudet på enheten så att du kan höra anvisningarna.";
+"SHOULDER_RANGE_OF_MOTION_TEXT_INSTRUCTION_1_RIGHT" = "Du börjar med att lägga enheten på din högra axel så att den kan mätas. Slå på ljudet på enheten så att du kan höra anvisningarna.";
+"SHOULDER_RANGE_OF_MOTION_TEXT_INSTRUCTION_2_LEFT" = "Lägg enheten på din vänstra axel med skärmen utåt (se bild).";
+"SHOULDER_RANGE_OF_MOTION_TEXT_INSTRUCTION_2_RIGHT" = "Lägg enheten på din högra axel med skärmen utåt (se bild).";
+"SHOULDER_RANGE_OF_MOTION_TEXT_INSTRUCTION_3_LEFT" = "När du vill börja trycker du på skärmen och lyfter din vänstra arm så högt du kan. Tryck igen när du är klar.";
+"SHOULDER_RANGE_OF_MOTION_TEXT_INSTRUCTION_3_RIGHT" = "När du vill börja trycker du på skärmen och lyfter din högra arm så högt du kan. Tryck igen när du är klar.";
+"SHOULDER_RANGE_OF_MOTION_TOUCH_ANYWHERE_STEP_INSTRUCTION_LEFT" = "Lägg enheten på vänster axel";
+"SHOULDER_RANGE_OF_MOTION_TOUCH_ANYWHERE_STEP_INSTRUCTION_RIGHT" = "Lägg enheten på höger axel";
+"SHOULDER_RANGE_OF_MOTION_SPOKEN_INSTRUCTION_LEFT" = "Lyft din vänstra arm. Tryck sedan var som helst.";
+"SHOULDER_RANGE_OF_MOTION_SPOKEN_INSTRUCTION_RIGHT" = "Lyft din högra arm. Tryck sedan var som helst.";
 
 /* Timed walk active task. */
 "TIMED_WALK_TITLE" = "Gång med tidtagning";
@@ -344,8 +435,9 @@
 "TIMED_WALK_QUESTION_2_CHOICE_5" = "Dubbelsidig krycka";
 "TIMED_WALK_QUESTION_2_CHOICE_6" = "Gåstativ/rollator";
 "TIMED_WALK_INSTRUCTION_%@" = "Gå upp till %@ i en rät linje.";
-"TIMED_WALK_INSTRUCTION_2" = "Vänd om och gå tillbaka till utgångsplatsen.";
-"TIMED_WALK_INSTRUCTION_TEXT" = "Tryck på Klar när du är färdig.";
+"TIMED_WALK_INSTRUCTION_TURN" = "Vänd om.";
+"TIMED_WALK_INSTRUCTION_2" = "Gå tillbaka till utgångsplatsen.";
+"TIMED_WALK_INSTRUCTION_TEXT" = "Tryck på Nästa när du är klar.";
 
 /* PSAT active task. */
 "PASAT_TITLE" = "PASAT";
@@ -363,8 +455,8 @@
 /* Hole peg test active task. */
 "HOLE_PEG_TEST_TITLE_%@" = "%@-håls pegtest";
 "HOLE_PEG_TEST_INTRO_TEXT_%@" = "Den här aktiviteten mäter funktionen för dina övre extremiteter genom att be dig placera en pinne i ett hål. Du uppmanas att göra detta %@ gånger.";
-"HOLE_PEG_TEST_INTRO_TEXT_2_LEFT_HAND_FIRST_%@" = "Både din vänstra och högra hand kommer att testas.\nDu måste plocka upp pinnen så snabbt som möjligt och stoppa in den i hålet. När du har gjort det %@ gånger tar du bort den igen %@ gånger.";
-"HOLE_PEG_TEST_INTRO_TEXT_2_RIGHT_HAND_FIRST_%@" = "Både din högra och vänstra hand kommer att testas.\nDu måste plocka upp pinnen så snabbt som möjligt och stoppa in den i hålet. När du har gjort det %@ gånger tar du bort den igen %@ gånger.";
+"HOLE_PEG_TEST_INTRO_TEXT_2_LEFT_HAND_FIRST_%@" = "Både den vänstra och högra handen kommer att testas.\nDu måste plocka upp pinnen så fort som möjligt och placera den i hålet. När du har gjort det %@ gånger tar du bort den igen %@ gånger.";
+"HOLE_PEG_TEST_INTRO_TEXT_2_RIGHT_HAND_FIRST_%@" = "Både den högra och vänstra handen kommer att testas.\nDu måste plocka upp pinnen så fort som möjligt och placera den i hålet. När du har gjort det %@ gånger tar du bort den igen %@ gånger.";
 
 "HOLE_PEG_TEST_CALL_TO_ACTION" = "Tryck på Kom igång för att börja.";
 "HOLE_PEG_TEST_PLACE_INSTRUCTION_LEFT_HAND" = "Placera pinnen i hålet med hjälp av vänster hand.";
@@ -416,6 +508,46 @@
 "TREMOR_SKIP_RIGHT_HAND" = "Jag kan inte utföra den här aktiviteten med HÖGRA handen.";
 "TREMOR_SKIP_NEITHER" = "Jag kan utföra den här aktiviteten med båda händerna.";
 
+/* Trail making task. */
+"TRAILMAKING_TASK_TITLE" = "Trail making test";
+"TRAILMAKING_INTENDED_USE" = "Den här aktiviteten utvärderar hur uppmärksam du är visuellt och hur bra du är på att växla mellan uppgifter genom att registrera tiden som krävs för att trycka på en serie med prickar i följd.";
+"TRAILMAKING_INTENDED_USE2_A" = "När nedräkningen är slut ska du trycka på prickar med varannan gång siffror och varannan gång bokstäver. Börja genom att trycka på den första siffran ”1” och sedan på siffrorna ”2” – ”3” – ”4” osv. tills du kommer till siffran ”7”.";
+"TRAILMAKING_INTENDED_USE2_B" = "När nedräkningen är slut ska du trycka på prickar med varannan gång siffror och varannan gång bokstäver. Börja genom att trycka på den första siffran ”1” och tryck sedan på den första bokstaven ”A”. Sedan ska du trycka på ”2” – ”B” – ”3” – ”C” osv. tills du kommer till siffran ”7”.";
+"TRAILMAKING_INTRO_TEXT" = "Gör det här så snabbt du kan utan att göra några misstag. \n ";
+"TRAILMAKING_CALL_TO_ACTION" = "Tryck på Kom igång för att börja.";
+"TRAILMAKING_LETTER_A" = "A";
+"TRAILMAKING_LETTER_B" = "B";
+"TRAILMAKING_LETTER_C" = "C";
+"TRAILMAKING_LETTER_D" = "D";
+"TRAILMAKING_LETTER_E" = "E";
+"TRAILMAKING_LETTER_F" = "F";
+
+/* Speech Recognition active task. */
+"SPEECH_TASK_TITLE" = "Röstigenkänning";
+"SPEECH_RECOGNITION_INTRO_TEXT" = "Den här aktiviteten spelar in ditt tal med mikrofonen i nederkanten av enheten och översätter den till text.";
+"SPEECH_RECOGNITION_CALL_TO_ACTION" = "Tryck på Kom igång för att börja.";
+"SPEECH_RECOGNITION_INTRO_2_TEXT" = "Tryck på knappen för att starta inspelningen innan du talar.";
+"SPEECH_RECOGNITION_START_RECORD_LABEL" = "Starta inspelning";
+"SPEECH_RECOGNITION_STOP_RECORD_LABEL" = "Stoppa inspelning";
+"SPEECH_RECOGNITION_QUESTION_TITLE" = "Redigera utskrift";
+"SPEECH_RECOGNITION_QUESTION_TEXT" = "Redigera utskriftstexten för att rätta eventuella feltolkningar av talet.";
+"SPEECH_RECOGNITION_TRANSCRIPTION_LABEL" = "Din utskrift visas här.";
+"SPEECH_RECOGNITION_FAILED" = "Röstigenkänning misslyckades.";
+"SPEECH_RECOGNITION_INIT_FAILURE" = "Kunde inte starta röstigenkänning.";
+
+/* Speech In Noise active task. */
+"SPEECH_IN_NOISE_START_AUDIO_LABEL" = "Spela upp ljud";
+"SPEECH_IN_NOISE_STOP_AUDIO_LABEL" = "Stoppa ljud";
+"SPEECH_IN_NOISE_TITLE" = "Tal i brus";
+"SPEECH_IN_NOISE_INTRO_TEXT" = "Den här aktiviteten mäter hörförståelsen i bullriga nivåer.";
+"SPEECH_IN_NOISE_DETAIL_TEXT" = "Som en del av det här testet ska du:\n\nLyssna på en mening.\n\nTydligt upprepa det du hörde eller gå vidare för att skriva in det du hörde med tangentbordet. \n\nOm du upprepar det du hörde har du möjlighet att ändra utskriften som görs av röstigenkänningsmotorn.";
+"SPEECH_IN_NOISE_CALIBRATION_TITLE" = "Volymkalibrering";
+"SPEECH_IN_NOISE_CALIBRATION_TEXT" = "Tryck på Spela upp ljud, justera volymen till en behaglig nivå och fortsätt sedan genom att trycka på Stoppa ljud.";
+"SPEECH_IN_NOISE_STEP_TITLE" = "Lyssna";
+"SPEECH_IN_NOISE_STEP_TEXT" = "En mening som är uppblandad med bakgrundsbrus med ett slumpmässigt signal-brusförhållande (SNR) kommer bara att spelas upp en gång.";
+"SPEECH_IN_NOISE_SPEAK_TITLE" = "Tal";
+"SPEECH_IN_NOISE_SPEAK_TEXT" = "Upprepa det du hörde.";
+
 /* Potentially user visible error messages. */
 "ERROR_DATALOGGER_CREATE_FILE" = "Kunde inte skapa fil";
 "ERROR_DATALOGGER_COULD_NOT_FREE_SPACE" = "Kunde inte ta bort tillräckligt många loggfiler för att nå tröskelvärdet";
@@ -425,13 +557,27 @@
 "ERROR_RECORDER_NO_DATA" = "Inga insamlade data hittades.";
 "ERROR_RECORDER_NO_OUTPUT_DIRECTORY" = "Ingen utmatningskatalog har angetts";
 
+/* Environment SPL*/
+"ENVIRONMENTSPL_TITLE" = "Ljudtrycksmätare";
+"ENVIRONMENTSPL_INTRO_TEXT" = "Den här aktiviteten mäter miljöns ljudtrycksnivå. Om bullernivåerna är för höga kan du inte fortsätta. Flytta till en tystare plats där du kan slutföra uppgiften eller gör om den här aktiviteten senare.";
+"ENVIRONMENTSPL_UNIT" = "dBA";
+"ENVIRONMENTSPL_CALCULATING" = "Beräknar";
+"ENVIRONMENTSPL_THRESHOLD" = "Tröskel: %@ dBA";
+
 /* Charts */
 "CHART_NO_DATA_TEXT" = "Inga data";
 
 /* Accessibility */
 "AX_BUTTON_BACK" = "Tillbaka";
+"AX_BUTTON_SHOW_PDF_THUMBNAIL" = "Visa PDF-miniatyr";
+"AX_BUTTON_HIDE_PDF_THUMBNAIL" = "Göm PDF-miniatyr";
+"AX_BUTTON_ANNOTATE" = "Anteckna";
+"AX_BUTTON_SHOW_SEARCH" = "Visa sökfält";
+"AX_BUTTON_HIDE_SEARCH" = "Göm sökfält";
+"AX_BUTTON_SHARE" = "Dela";
 
-"AX_IMAGE_ILLUSTRATION" = "Illustration av %@";
+
+"AX_COMPLETION_ILLUSTRATION" = "Illustration av en bockmarkering i en blå cirkel som förmedlar ett lyckat resultat";
 
 "AX_SIGNVIEW_LABEL" = "Tilldelat signaturfält";
 "AX_SIGNVIEW_HINT" = "Rör vid skärmen och signera genom att röra fingret";
@@ -456,7 +602,7 @@
 "AX_IMAGE_CAPTURED_LABEL" = "Sparad bild";
 
 "AX_VIDEO_CAPTURE_LABEL" = "Förhandsvisning av videoinspelning";
-"AX_VIDEO_CAPTURED_LABEL" = "Inspelad video";
+"AX_VIDEO_CAPTURE_COMPLETE" = "Videoinspelning klar";
 
 "AX_TOWER_OF_HANOI_INVALID_MOVE_FORMAT" = "Ka inte placera skivan med storleken %@ på skivan med storleken %@";
 "AX_TOWER_OF_HANOI_TARGET_DISK" = "Mål";
@@ -466,7 +612,22 @@
 "AX_TOWER_OF_HANOI_TOWER_CONTAINS" = "Har skivor med storlekarna %@";
 "AX_TOWER_OF_HANOI_TOWER_EMPTY" = "Tomt";
 
+
 "AX_GRAPH_RANGE_FORMAT_%@_%@" = "Intervall från %@ till %@";
 "AX_GRAPH_STACK_PREFIX" = "Trave som består av";
 "AX_GRAPH_AND_SEPARATOR" = " och ";
 "AX_GRAPH_POINT_%@" = "Punkt: %@";
+
+"AX_SPEECH_RECOGNITION_WAVEFORM" = "Talvågform";
+"AX_SPEECH_RECOGNITION_START_RECORDING_HINT" = "När inspelningen börjar aktiverar du en andra tid för att stoppa inspelningen.";
+
+"AX_AUDIO_BAR_GRAPH" = "Ljudstapeldiagram";
+
+"AX_AMSLER_GRID_LABEL" = "Amsler-nät";
+"AX_AMSLER_GRID_HINT" = "Använd fingret eller en ritpenna till att märka rutnätet, eller svep åt vänster utanför rutnätet för att avsluta.";
+
+/* This contains the visual text, followed by a VoiceOver-specific description, followed by the visual text on the following page (since VoiceOver users may not have a chance to hear the visual text before needing to perform the actions). */
+/* This contains the visual text, followed by a VoiceOver-specific description. */
+/* This contains the visual text, followed by a VoiceOver-specific description. */
+
+/* This contains the visual text, followed by a VoiceOver-specific description. */

@@ -62,8 +62,12 @@ class ProfileViewController: UITableViewController, HealthClientType {
             guard authorized else { return }
             
             // Reload the table view cells on the main thread.
-            OperationQueue.main.addOperation() {
-                let allRowIndexPaths = self.healthObjectTypes.enumerated().map { (index, element) in return IndexPath(row: index, section: 0) }
+            
+            OperationQueue.main.addOperation {
+                var allRowIndexPaths: [IndexPath] = []
+                for index in 0..<self.healthObjectTypes.count {
+                    allRowIndexPaths.append(IndexPath(row: index, section: 0))
+                }
                 self.tableView.reloadRows(at: allRowIndexPaths, with: .automatic)
             }
         }
@@ -79,7 +83,7 @@ class ProfileViewController: UITableViewController, HealthClientType {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: ProfileStaticTableViewCell.reuseIdentifier, for: indexPath) as? ProfileStaticTableViewCell else { fatalError("Unable to dequeue a ProfileStaticTableViewCell") }
         let objectType = healthObjectTypes[(indexPath as NSIndexPath).row]
         
-        switch(objectType.identifier) {
+        switch objectType.identifier {
             case HKCharacteristicTypeIdentifier.dateOfBirth.rawValue:
                 configureCellWithDateOfBirth(cell)
             
@@ -119,9 +123,8 @@ class ProfileViewController: UITableViewController, HealthClientType {
             let ageComponents = Calendar.current.dateComponents([.year], from: dateOfBirth, to: now)
             let age = ageComponents.year
 
-            cell.valueLabel.text = "\(age)"
-        }
-        catch {
+            cell.valueLabel.text = "\(age ?? 0)"
+        } catch {
         }
     }
     

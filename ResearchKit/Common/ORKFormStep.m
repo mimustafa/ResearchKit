@@ -32,6 +32,8 @@
 #import "ORKFormStep.h"
 
 #import "ORKFormStepViewController.h"
+#import "ORKBodyItem.h"
+#import "ORKLearnMoreItem.h"
 
 #import "ORKAnswerFormat_Internal.h"
 #import "ORKFormItem_Internal.h"
@@ -55,6 +57,7 @@
         self.text = text;
         self.optional = YES;
         self.useSurveyMode = YES;
+        self.useCardView = YES;
     }
     return self;
 }
@@ -64,10 +67,10 @@
     if (self) {
         self.optional = YES;
         self.useSurveyMode = YES;
+        self.useCardView = YES;
     }
     return self;
 }
-
 
 - (void)validateParameters {
     [super validateParameters];
@@ -99,7 +102,8 @@
     BOOL isParentSame = [super isEqual:object];
     
     __typeof(self) castObject = object;
-    return isParentSame && ORKEqualObjects(self.formItems, castObject.formItems);
+    return isParentSame &&
+    ORKEqualObjects(self.formItems, castObject.formItems);
 }
 
 - (NSUInteger)hash {
@@ -110,6 +114,7 @@
     self = [super initWithCoder:aDecoder];
     if (self) {
         ORK_DECODE_OBJ_ARRAY(aDecoder, formItems, ORKFormItem);
+        ORK_DECODE_BOOL(aDecoder, useCardView);
     }
     return self;
 }
@@ -117,6 +122,7 @@
 - (void)encodeWithCoder:(NSCoder *)aCoder {
     [super encodeWithCoder:aCoder];
     ORK_ENCODE_OBJ(aCoder, formItems);
+    ORK_ENCODE_BOOL(aCoder, useCardView);
 }
 
 + (BOOL)supportsSecureCoding {
@@ -136,6 +142,20 @@
     }
 }
 
+- (NSSet<HKObjectType *> *)requestedHealthKitTypesForReading {
+    NSMutableSet<HKObjectType *> *healthTypes = [NSMutableSet set];
+    
+    for (ORKFormItem *formItem in self.formItems) {
+        ORKAnswerFormat *answerFormat = [formItem answerFormat];
+        HKObjectType *objType = [answerFormat healthKitObjectTypeForAuthorization];
+        if (objType) {
+            [healthTypes addObject:objType];
+        }
+    }
+    
+    return healthTypes.count ? healthTypes : nil;
+}
+
 @end
 
 
@@ -145,7 +165,7 @@
     return [self initWithIdentifier:identifier text:text answerFormat:answerFormat optional:YES];
 }
 
-- (instancetype)initWithIdentifier:(NSString *)identifier text:(NSString *)text answerFormat:(ORKAnswerFormat *)answerFormat optional:(BOOL) optional {
+- (instancetype)initWithIdentifier:(NSString *)identifier text:(NSString *)text answerFormat:(ORKAnswerFormat *)answerFormat optional:(BOOL)optional {
     self = [super init];
     if (self) {
         ORKThrowInvalidArgumentExceptionIfNil(identifier);
@@ -161,6 +181,17 @@
     self = [super init];
     if (self) {
         _text = [sectionTitle copy];
+    }
+    return self;
+}
+
+- (instancetype)initWithSectionTitle:(nullable NSString *)sectionTitle detailText:(nullable NSString *)text learnMoreItem:(nullable ORKLearnMoreItem *)learnMoreItem showsProgress:(BOOL)showsProgress {
+    self = [super init];
+    if (self) {
+        _text = [sectionTitle copy];
+        _detailText = [text copy];
+        _learnMoreItem = [learnMoreItem copy];
+        _showsProgress = showsProgress;
     }
     return self;
 }
@@ -191,8 +222,12 @@
 
 - (instancetype)copyWithZone:(NSZone *)zone {
     ORKFormItem *item = [[[self class] allocWithZone:zone] initWithIdentifier:[_identifier copy] text:[_text copy] answerFormat:[_answerFormat copy]];
-    item.optional = _optional;
-    item.placeholder = _placeholder;
+    item->_optional = _optional;
+    item->_placeholder = _placeholder;
+    item->_hidePredicate = _hidePredicate;
+    item->_detailText = [_detailText copy];
+    item->_learnMoreItem = [_learnMoreItem copy];
+    item->_showsProgress = _showsProgress;
     return item;
 }
 
@@ -202,9 +237,13 @@
         ORK_DECODE_OBJ_CLASS(aDecoder, identifier, NSString);
         ORK_DECODE_BOOL(aDecoder, optional);
         ORK_DECODE_OBJ_CLASS(aDecoder, text, NSString);
+        ORK_DECODE_OBJ_CLASS(aDecoder, detailText, NSString);
+        ORK_DECODE_OBJ_CLASS(aDecoder, learnMoreItem, ORKLearnMoreItem);
+        ORK_DECODE_BOOL(aDecoder, showsProgress);
         ORK_DECODE_OBJ_CLASS(aDecoder, placeholder, NSString);
         ORK_DECODE_OBJ_CLASS(aDecoder, answerFormat, ORKAnswerFormat);
         ORK_DECODE_OBJ_CLASS(aDecoder, step, ORKFormStep);
+        ORK_DECODE_OBJ_CLASS(aDecoder, hidePredicate, NSPredicate);
     }
     return self;
 }
@@ -213,10 +252,13 @@
     ORK_ENCODE_OBJ(aCoder, identifier);
     ORK_ENCODE_BOOL(aCoder, optional);
     ORK_ENCODE_OBJ(aCoder, text);
+    ORK_ENCODE_OBJ(aCoder, detailText);
+    ORK_ENCODE_OBJ(aCoder, learnMoreItem);
+    ORK_ENCODE_BOOL(aCoder, showsProgress);
     ORK_ENCODE_OBJ(aCoder, placeholder);
     ORK_ENCODE_OBJ(aCoder, answerFormat);
     ORK_ENCODE_OBJ(aCoder, step);
-
+    ORK_ENCODE_OBJ(aCoder, hidePredicate);
 }
 
 - (BOOL)isEqual:(id)object {
@@ -229,13 +271,17 @@
     return (ORKEqualObjects(self.identifier, castObject.identifier)
             && self.optional == castObject.optional
             && ORKEqualObjects(self.text, castObject.text)
+            && ORKEqualObjects(self.detailText, castObject.detailText)
+            && ORKEqualObjects(self.learnMoreItem, castObject.learnMoreItem)
+            && self.showsProgress == castObject.showsProgress
             && ORKEqualObjects(self.placeholder, castObject.placeholder)
-            && ORKEqualObjects(self.answerFormat, castObject.answerFormat));
+            && ORKEqualObjects(self.answerFormat, castObject.answerFormat)
+            && ORKEqualObjects(self.hidePredicate, castObject.hidePredicate));
 }
 
 - (NSUInteger)hash {
-     // Ignore the step reference - it's not part of the content of this item
-    return _identifier.hash ^ _text.hash ^ _placeholder.hash ^ _answerFormat.hash ^ (_optional ? 0xf : 0x0);
+    // Ignore the step reference - it's not part of the content of this item
+    return _identifier.hash ^ _text.hash ^ _placeholder.hash ^ _answerFormat.hash ^ (_optional ? 0xf : 0x0) ^ _detailText.hash ^ _learnMoreItem.hash ^ (_showsProgress ? 0xf : 0x0) ^ _hidePredicate.hash;
 }
 
 - (ORKAnswerFormat *)impliedAnswerFormat {

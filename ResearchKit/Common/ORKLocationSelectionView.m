@@ -42,6 +42,7 @@
 #import "ORKAnswerTextField.h"
 
 #import "ORKAnswerFormat_Internal.h"
+#import "ORKQuestionResult_Private.h"
 #import "ORKResult_Private.h"
 
 #import "ORKHelpers_Internal.h"
@@ -71,7 +72,8 @@ static const NSString *FormattedAddressLines = @"FormattedAddressLines";
 @implementation CLPlacemark (ork_addressLine)
 
 - (NSString *)ork_addressLine {
-     return [self.addressDictionary[FormattedAddressLines] componentsJoinedByString:@" "];
+    return [CNPostalAddressFormatter stringFromPostalAddress:self.postalAddress
+                                                        style:CNPostalAddressFormatterStyleMailingAddress];
 }
 
 @end
@@ -105,10 +107,7 @@ static const NSString *FormattedAddressLines = @"FormattedAddressLines";
 
 - (instancetype)initWithFormMode:(BOOL)formMode
               useCurrentLocation:(BOOL)useCurrentLocation
-                   leadingMargin:(CGFloat)leadingMargin; {
-    
-    
-    
+                   leadingMargin:(CGFloat)leadingMargin {
     if (NO == formMode) {
         self = [super initWithFrame:CGRectMake(0.0, 0.0, 200.0, [self.class textFieldHeight] + [ORKLocationSelectionView.class textFieldBottomMargin]*2 + ORKGetMetricForWindow(ORKScreenMetricLocationQuestionMapHeight, self.window))];
     } else {
@@ -118,7 +117,7 @@ static const NSString *FormattedAddressLines = @"FormattedAddressLines";
     if (self) {
         _textField = [[ORKAnswerTextField alloc] init];
         _textField.delegate = self;
-        _textField.placeholder = ORKLocalizedString(@"LOCATION_QUESTION_PLACEHOLDER",nil);
+        _textField.placeholder = ORKLocalizedString(@"LOCATION_QUESTION_PLACEHOLDER", nil);
         _textField.clearButtonMode = UITextFieldViewModeWhileEditing;
         _textField.returnKeyType = UIReturnKeySearch;
         _textField.adjustsFontSizeToFitWidth = YES;
@@ -145,6 +144,7 @@ static const NSString *FormattedAddressLines = @"FormattedAddressLines";
             [self addSubview:_seperator3];
         }
         
+        [self setUpGestureRecognizer];
         [self setUpConstraints];
 
         if (NO == formMode) {
@@ -155,6 +155,28 @@ static const NSString *FormattedAddressLines = @"FormattedAddressLines";
     }
     
     return self;
+}
+
+- (void)setUpGestureRecognizer {
+    UILongPressGestureRecognizer *lpgr = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(addPlacemarkToMap:)];
+    lpgr.minimumPressDuration = 1.0; // press for 1 second
+    [_mapView addGestureRecognizer:lpgr];
+}
+
+- (void)addPlacemarkToMap:(UIGestureRecognizer *)gestureRecognizer {
+    if (gestureRecognizer.state != UIGestureRecognizerStateBegan) {
+        return;
+    }
+    
+    CGPoint touchPoint = [gestureRecognizer locationInView:_mapView];
+    CLLocationCoordinate2D touchMapCoordinate = [_mapView convertPoint:touchPoint toCoordinateFromView:_mapView];
+    
+    MKPointAnnotation *annotation = [MKPointAnnotation new];
+    annotation.coordinate = touchMapCoordinate;
+    [_mapView addAnnotation:annotation];
+    
+    ORKLocation *pinLocation = [[ORKLocation alloc] initWithCoordinate:touchMapCoordinate region:nil userInput:nil postalAddress:nil];
+    [self setAnswer:pinLocation];
 }
 
 - (void)setUpConstraints {
@@ -210,7 +232,9 @@ static const NSString *FormattedAddressLines = @"FormattedAddressLines";
 }
 
 - (BOOL)resignFirstResponder {
-    return [_textField resignFirstResponder];
+    BOOL didResign = [super resignFirstResponder];
+    didResign = [_textField resignFirstResponder] || didResign;
+    return didResign;
 }
 
 - (CGSize)intrinsicContentSize {
@@ -331,7 +355,7 @@ static const NSString *FormattedAddressLines = @"FormattedAddressLines";
     
     if (location) {
         
-        if (!location.userInput || !location.region |!location.addressDictionary) {
+        if (!location.userInput || !location.region |!location.postalAddress) {
             // redo geo decoding if any of them is missing
             [self reverseGeocodeAndDisplay:location];
             return;
@@ -353,7 +377,7 @@ static const NSString *FormattedAddressLines = @"FormattedAddressLines";
 
 - (void)updateMapWithLocation:(ORKLocation *)location {
     
-    MKPlacemark *placemark = location ? [[MKPlacemark alloc] initWithCoordinate:location.coordinate addressDictionary:nil] : nil;
+    MKPlacemark *placemark = location ? [[MKPlacemark alloc] initWithCoordinate:location.coordinate postalAddress:location.postalAddress] : nil;
     
     [_mapView removeAnnotations:_mapView.annotations];
     
@@ -422,7 +446,7 @@ static const NSString *FormattedAddressLines = @"FormattedAddressLines";
         [self reverseGeocodeAndDisplay:[[ORKLocation alloc] initWithCoordinate:userLocation.location.coordinate
                                                                         region:nil
                                                                      userInput:nil
-                                                             addressDictionary:@{}]];
+                                                                 postalAddress:nil]];
         _userLocationNeedsUpdate = NO;
     }
 }

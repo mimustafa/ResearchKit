@@ -2,6 +2,8 @@
  Copyright (c) 2015, Apple Inc. All rights reserved.
  Copyright (c) 2015, Bruce Duncan.
  Copyright (c) 2016, Ricardo Sánchez-Sáez.
+ Copyright (c) 2017, Macro Yau.
+ Copyright (c) 2017, Sage Bionetworks.
  
  Redistribution and use in source and binary forms, with or without modification,
  are permitted provided that the following conditions are met:
@@ -41,6 +43,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class ORKContinuousScaleAnswerFormat;
 @class ORKTextScaleAnswerFormat;
 @class ORKValuePickerAnswerFormat;
+@class ORKMultipleValuePickerAnswerFormat;
 @class ORKImageChoiceAnswerFormat;
 @class ORKTextChoiceAnswerFormat;
 @class ORKBooleanAnswerFormat;
@@ -51,6 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class ORKEmailAnswerFormat;
 @class ORKTimeIntervalAnswerFormat;
 @class ORKHeightAnswerFormat;
+@class ORKWeightAnswerFormat;
 @class ORKLocationAnswerFormat;
 
 @class ORKTextChoice;
@@ -69,7 +73,7 @@ NS_ASSUME_NONNULL_BEGIN
  An answer format is validated when its owning step is validated.
  
  Some answer formats are constructed of other answer formats. When this is the
- case, the answer format can implement the internal method `_impliedAnswerFormat` to return
+ case, the answer format can override the method `impliedAnswerFormat` to return
  the answer format that is implied. For example, a Boolean answer format
  is presented in the same way as a single-choice answer format with the
  choices Yes and No mapping to `@(YES)` and `@(NO)`, respectively.
@@ -114,9 +118,17 @@ ORK_CLASS_AVAILABLE
 
 + (ORKBooleanAnswerFormat *)booleanAnswerFormat;
 
++ (ORKBooleanAnswerFormat *)booleanAnswerFormatWithYesString:(NSString *)yes
+                                                    noString:(NSString *)no;
+
 + (ORKValuePickerAnswerFormat *)valuePickerAnswerFormatWithTextChoices:(NSArray<ORKTextChoice *> *)textChoices;
 
++ (ORKMultipleValuePickerAnswerFormat *)multipleValuePickerAnswerFormatWithValuePickers:(NSArray<ORKValuePickerAnswerFormat *> *)valuePickers;
+
 + (ORKImageChoiceAnswerFormat *)choiceAnswerFormatWithImageChoices:(NSArray<ORKImageChoice *> *)imageChoices;
++ (ORKImageChoiceAnswerFormat *)choiceAnswerFormatWithImageChoices:(NSArray<ORKImageChoice *> *)imageChoices
+                                                             style:(ORKChoiceAnswerStyle)style
+                                                          vertical:(BOOL)vertical;
 
 + (ORKTextChoiceAnswerFormat *)choiceAnswerFormatWithStyle:(ORKChoiceAnswerStyle)style
                                                textChoices:(NSArray<ORKTextChoice *> *)textChoices;
@@ -143,17 +155,32 @@ ORK_CLASS_AVAILABLE
 
 + (ORKTextAnswerFormat *)textAnswerFormatWithMaximumLength:(NSInteger)maximumLength;
 
-+ (ORKTextAnswerFormat *)textAnswerFormatWithValidationRegex:(NSString *)validationRegex
-                                              invalidMessage:(NSString *)invalidMessage;
++ (ORKTextAnswerFormat *)textAnswerFormatWithValidationRegularExpression:(NSRegularExpression *)validationRegularExpression
+                                                          invalidMessage:(NSString *)invalidMessage;
 
 + (ORKEmailAnswerFormat *)emailAnswerFormat;
 
 + (ORKTimeIntervalAnswerFormat *)timeIntervalAnswerFormat;
+
 + (ORKTimeIntervalAnswerFormat *)timeIntervalAnswerFormatWithDefaultInterval:(NSTimeInterval)defaultInterval
                                                                         step:(NSInteger)step;
 
 + (ORKHeightAnswerFormat *)heightAnswerFormat;
+
 + (ORKHeightAnswerFormat *)heightAnswerFormatWithMeasurementSystem:(ORKMeasurementSystem)measurementSystem;
+
++ (ORKWeightAnswerFormat *)weightAnswerFormat;
+
++ (ORKWeightAnswerFormat *)weightAnswerFormatWithMeasurementSystem:(ORKMeasurementSystem)measurementSystem;
+
++ (ORKWeightAnswerFormat *)weightAnswerFormatWithMeasurementSystem:(ORKMeasurementSystem)measurementSystem
+                                                  numericPrecision:(ORKNumericPrecision)numericPrecision;
+
++ (ORKWeightAnswerFormat *)weightAnswerFormatWithMeasurementSystem:(ORKMeasurementSystem)measurementSystem
+                                                  numericPrecision:(ORKNumericPrecision)numericPrecision
+                                                      minimumValue:(double)minimumValue
+                                                      maximumValue:(double)maximumValue
+                                                      defaultValue:(double)defaultValue;
 
 + (ORKLocationAnswerFormat *)locationAnswerFormat;
 
@@ -167,6 +194,16 @@ ORK_CLASS_AVAILABLE
  about to be displayed.
  */
 - (void)validateParameters;
+
+/**
+ Some answer formats are constructed of other answer formats. This method allows
+ a subclass to return a different answer format for use in defining the UI/UX for
+ the answer format type. For example, a Boolean answer format is presented in the 
+ same way as a single-choice answer format with the choices Yes and No mapping to 
+ `@(YES)` and `@(NO)`, respectively, so its `impliedAnswerFormat` is an 
+ `ORKTextChoiceAnswerFormat` with those options.
+ */
+- (ORKAnswerFormat *)impliedAnswerFormat;
 
 @end
 
@@ -291,6 +328,11 @@ ORK_CLASS_AVAILABLE
  A Boolean value indicating whether the scale is oriented vertically. (read-only)
  */
 @property (readonly, getter=isVertical) BOOL vertical;
+
+/**
+ A Boolean value indicating whether the selected value should be hidden.
+ */
+@property (assign, getter=shouldHideSelectedValueLabel) BOOL hideSelectedValue;
 
 /**
  Number formatter applied to the minimum, maximum, and slider values. Can be overridden by
@@ -460,6 +502,11 @@ ORK_CLASS_AVAILABLE
 @property (readonly) NSNumberFormatter *numberFormatter;
 
 /**
+ A Boolean value indicating whether the selected value should be hidden.
+ */
+@property (assign, getter=shouldHideSelectedValueLabel) BOOL hideSelectedValue;
+
+/**
  A localized label to describe the maximum value of the scale. (read-only)
  */
 @property (readonly, nullable) NSString *maximumValueDescription;
@@ -529,7 +576,6 @@ ORK_CLASS_AVAILABLE
                                         the slider is displayed without a default value.
  @param vertical                    Pass `YES` to use a vertical scale; for the default horizontal
                                         scale, pass `NO`.
- 
  @return An initialized text scale answer format.
  */
 - (instancetype)initWithTextChoices:(NSArray<ORKTextChoice *> *)textChoices
@@ -571,6 +617,11 @@ ORK_CLASS_AVAILABLE
  A Boolean value indicating whether the scale is oriented vertically. (read-only)
  */
 @property (readonly, getter=isVertical) BOOL vertical;
+
+/**
+ A Boolean value indicating whether the selected value should be hidden.
+ */
+@property (assign, getter=shouldHideSelectedValueLabel) BOOL hideSelectedValue;
 
 /**
  The colors to use when drawing a color gradient above the slider. Colors are drawn such that
@@ -637,6 +688,55 @@ ORK_CLASS_AVAILABLE
 
 
 /**
+ The `ORKMultipleValuePickerAnswerFormat` class represents an answer format that lets participants use a
+ multiple-component value picker to choose from a fixed set of text choices.
+ 
+ Note that the multiple value picker answer format reports itself as being of the multiple picker question
+ type. The multiple-component value picker answer format produces an `ORKMultipleComponentQuestionResult` 
+ object where the index into the array matches the array of `ORKValuePickerAnswerFormat` objects.
+ 
+ For example, if the picker shows two columns with choices of `[[A, B, C], [1, 2, 3, 4]]` and the user picked
+ `B` and `3` then this would result in `componentsAnswer = [B, 3]`.
+ */
+ORK_CLASS_AVAILABLE
+@interface ORKMultipleValuePickerAnswerFormat : ORKAnswerFormat
+
++ (instancetype)new NS_UNAVAILABLE;
+- (instancetype)init NS_UNAVAILABLE;
+
+/**
+ Returns a multiple value picker answer format using the specified array of value pickers.
+ 
+ @param valuePickers     Array of `ORKValuePickerAnswerFormat` objects.
+ 
+ @return An initialized multiple value picker answer format.
+ */
+- (instancetype)initWithValuePickers:(NSArray<ORKValuePickerAnswerFormat *> *)valuePickers;
+
+/**
+ Returns a multiple value picker answer format using the specified array of value pickers.
+ 
+ @param valuePickers     Array of `ORKValuePickerAnswerFormat` objects.
+ @param separator        String used to separate the components
+ 
+ @return An initialized multiple value picker answer format.
+ */
+- (instancetype)initWithValuePickers:(NSArray<ORKValuePickerAnswerFormat *> *)valuePickers separator:(NSString *)separator NS_DESIGNATED_INITIALIZER;
+
+/**
+ An array of value pickers that represent the options to display in the picker. (read-only)
+ */
+@property (copy, readonly) NSArray<ORKValuePickerAnswerFormat *> *valuePickers;
+
+/**
+ A string used to define the separator for the format of the string. Default = " ".
+ */
+@property (copy, readonly) NSString *separator;
+
+@end
+
+
+/**
  The `ORKImageChoiceAnswerFormat` class represents an answer format that lets participants choose
  one image from a fixed set of images in a single choice question.
  
@@ -659,7 +759,21 @@ ORK_CLASS_AVAILABLE
  
  @return An initialized image choice answer format.
  */
-- (instancetype)initWithImageChoices:(NSArray<ORKImageChoice *> *)imageChoices NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithImageChoices:(NSArray<ORKImageChoice *> *)imageChoices;
+
+/**
+ Returns an initialized image choice answer format using the specified array of images.
+ 
+ @param imageChoices    Array of `ORKImageChoice` objects.
+ @param style           The style of question, such as single or multiple choice.
+ @param vertical        Pass `YES` to stack images vertically; for the default horizontal
+ layout, pass `NO`.
+ 
+ @return An initialized image choice answer format.
+ */
+- (instancetype)initWithImageChoices:(NSArray<ORKImageChoice *> *)imageChoices
+                               style:(ORKChoiceAnswerStyle)style
+                            vertical:(BOOL)vertical NS_DESIGNATED_INITIALIZER;
 
 /**
  An array of `ORKImageChoice` objects that represent the available choices. (read-only)
@@ -668,6 +782,16 @@ ORK_CLASS_AVAILABLE
  each choice is spoken by VoiceOver when an image is highlighted.
  */
 @property (copy, readonly) NSArray<ORKImageChoice *> *imageChoices;
+
+/**
+ The style of the question (that is, single or multiple choice).
+ */
+@property (readonly) ORKChoiceAnswerStyle style;
+
+/**
+ A Boolean value indicating whether the choices are stacked vertically. (read-only)
+ */
+@property (readonly, getter=isVertical) BOOL vertical;
 
 @end
 
@@ -726,6 +850,26 @@ ORK_CLASS_AVAILABLE
 ORK_CLASS_AVAILABLE
 @interface ORKBooleanAnswerFormat : ORKAnswerFormat
 
+/**
+ Returns an initialized Boolean answer format using the specified strings for Yes and No answers.
+ 
+ @param yes         A string that describes the Yes answer.
+ @param no          A string that describes the No answer.
+ 
+ @return An initialized Boolean answer format.
+ */
+- (instancetype)initWithYesString:(NSString *)yes noString:(NSString *)no;
+
+/**
+ The string to describe the Yes answer. (read-only)
+ */
+@property (copy, readonly) NSString *yes;
+
+/**
+ The string to describe the No answer. (read-only)
+ */
+@property (copy, readonly) NSString *no;
+
 @end
 
 
@@ -741,6 +885,20 @@ ORK_CLASS_AVAILABLE
 
 + (instancetype)new NS_UNAVAILABLE;
 - (instancetype)init NS_UNAVAILABLE;
+
+/**
+ Returns a text choice object that includes the specified primary text or text with string attributes, detail text or text with string attributes, and exclusivity.
+ 
+ @param text                         The primary text that describes the choice in a localized string.
+ @param primaryTextAttributedString  The primary text that describes the choice in an attributed string. Setting this will override `text`.
+ @param detailText                   The detail text to display below the primary text, in a localized string.
+ @param detailTextAttributedString   The detail text to display below the primary text, in an attributed string. Setting this will override `detailText`.
+ @param value                        The value to record in a result object when this item is selected.
+ @param exclusive                    Whether this choice is to be considered exclusive within the set of choices.
+ 
+ @return A text choice instance.
+ */
++ (instancetype)choiceWithText:(nullable NSString *)text primaryTextAttributedString:(nullable NSAttributedString *)primaryTextAttributedString detailText:(nullable NSString *)detailText detailTextAttributedString:(nullable NSAttributedString *)detailTextAttributedString value:(id<NSCopying, NSCoding, NSObject>)value exclusive:(BOOL)exclusive;
 
 /**
  Returns a text choice object that includes the specified primary text, detail text,
@@ -769,8 +927,6 @@ ORK_CLASS_AVAILABLE
  Returns an initialized text choice object using the specified primary text, detail text,
  and exclusivity.
  
- This method is the designated initializer.
- 
  @param text        The primary text that describes the choice in a localized string.
  @param detailText  The detail text to display below the primary text, in a localized string.
  @param value       The value to record in a result object when this item is selected.
@@ -781,7 +937,28 @@ ORK_CLASS_AVAILABLE
 - (instancetype)initWithText:(NSString *)text
                   detailText:(nullable NSString *)detailText
                        value:(id<NSCopying, NSCoding, NSObject>)value
-                    exclusive:(BOOL)exclusive NS_DESIGNATED_INITIALIZER;
+                    exclusive:(BOOL)exclusive;
+
+/**
+ Returns an initialized text choice object using the specified primary text or text with string attributes, detail text or text with string attributes, and exclusivity.
+ 
+ This method is the designated initializer.
+ 
+ @param text                         The primary text that describes the choice in a localized string.
+ @param primaryTextAttributedString  The primary text that describes the choice in an attributed string. Setting this will override `text`.
+ @param detailText                   The detail text to display below the primary text, in a localized string.
+ @param detailTextAttributedString   The detail text to display below the primary text, in an attributed string. Setting this will override `detailText`.
+ @param value                        The value to record in a result object when this item is selected.
+ @param exclusive                    Whether this choice is to be considered exclusive within the set of choices.
+ 
+ @return An initialized text choice.
+ */
+- (instancetype)initWithText:(nullable NSString *)text
+ primaryTextAttributedString:(nullable NSAttributedString *)primaryTextAttributedString
+                  detailText:(nullable NSString *)detailText
+  detailTextAttributedString:(nullable NSAttributedString *)detailTextAttributedString
+                       value:(id<NSCopying, NSCoding, NSObject>)value
+                   exclusive:(BOOL)exclusive NS_DESIGNATED_INITIALIZER;
 
 /**
  The text that describes the choice in a localized string.
@@ -789,6 +966,13 @@ ORK_CLASS_AVAILABLE
  In general, it's best when the text can fit on one line.
   */
 @property (copy, readonly) NSString *text;
+
+/**
+ The text that describes the choice in an attributed string.
+ 
+ In general, it's best when the text can fit on one line.
+ */
+@property (copy, readonly, nullable) NSAttributedString *primaryTextAttributedString;
 
 /**
  The value to return when this choice is selected.
@@ -808,12 +992,85 @@ ORK_CLASS_AVAILABLE
 @property (copy, readonly, nullable) NSString *detailText;
 
 /**
+ The text that provides additional details about the choice in an attributed string.
+ 
+ The detail text can span multiple lines. Note that `ORKValuePickerAnswerFormat` ignores detail
+ text.
+ */
+@property (copy, readonly, nullable) NSAttributedString *detailTextAttributedString;
+
+/**
  In a multiple choice format, this indicates whether this choice requires all other choices to be
  unselected.
  
  In general, this is used to indicate a "None of the above" choice.
  */
 @property (readonly) BOOL exclusive;
+
+@end
+
+
+/**
+ The `ORKTextChoiceOther` class defines the choice option to describe an answer not
+ included in provided choices.
+ 
+ The `ORKTextChoiceOther` provides an optional text view of type `ORKAnswerTextView` that allows users to enter free form text.
+ */
+ORK_CLASS_AVAILABLE
+@interface ORKTextChoiceOther : ORKTextChoice
+
++ (instancetype)new NS_UNAVAILABLE;
+- (instancetype)init NS_UNAVAILABLE;
+
+/**
+ Returns a text choice other object that includes the specified text, detail text, exclusivity and a text view with placeholder text for additional user input.
+ 
+ @param text                         The primary text that describes the choice in a localized string.
+ @param detailText                   The detail text to display below the primary text, in a localized string.
+ @param value                        The value to record in a result object when this item is selected.
+ @param exclusive                    Whether this choice is to be considered exclusive within the set of choices.
+ @param textViewPlaceholderText      The placeholder text for the text view.
+ 
+ @return A text choice other instance.
+ */
++ (instancetype)choiceWithText:(nullable NSString *)text
+                    detailText:(nullable NSString *)detailText
+                         value:(id<NSCopying, NSCoding, NSObject>)value
+                     exclusive:(BOOL)exclusive
+       textViewPlaceholderText:(NSString *)textViewPlaceholderText;
+
+/**
+ Returns an initialized text choice other object using the specified primary text or text with string attributes, detail text or text with string attributes, exclusivity and an optional view for free form text entry.
+ 
+ This method is the designated initializer.
+ 
+ @param text                         The primary text that describes the choice in a localized string.
+ @param primaryTextAttributedString  The primary text that describes the choice in an attributed string. Setting this will override `text`.
+ @param detailText                   The detail text to display below the primary text, in a localized string.
+ @param detailTextAttributedString   The detail text to display below the primary text, in an attributed string. Setting this will override `detailText`.
+ @param value                        The value to record in a result object when this item is selected.
+ @param exclusive                    Whether this choice is to be considered exclusive within the set of choices.
+ @param textViewPlaceholderText      The placeholder text for the text view.
+ @param textViewInputOptional        Whether the user is required to provide additional text when selecting this choice.
+ @param textViewStartsHidden         Whether the text view should be hidden untill the cell is selected.
+ 
+ @return An initialized text choice other object.
+ */
+- (instancetype)initWithText:(nullable NSString *)text
+ primaryTextAttributedString:(nullable NSAttributedString *)primaryTextAttributedString
+                  detailText:(nullable NSString *)detailText
+  detailTextAttributedString:(nullable NSAttributedString *)detailTextAttributedString
+                       value:(id<NSCopying, NSCoding, NSObject>)value
+                   exclusive:(BOOL)exclusive
+     textViewPlaceholderText:(NSString *)textViewPlaceholderText
+       textViewInputOptional:(BOOL)textViewInputOptional
+        textViewStartsHidden:(BOOL)textViewStartsHidden;
+
+@property (copy, readonly, nullable) NSString *textViewPlaceholderText;
+
+@property (readonly) BOOL textViewInputOptional;
+
+@property (readonly) BOOL textViewStartsHidden;
 
 @end
 
@@ -964,19 +1221,37 @@ ORK_CLASS_AVAILABLE
 Returns an initialized numeric answer format using the specified style, unit designation, and range
  values.
  
- This method is the designated initializer.
- 
- @param style       The style of the numeric answer (decimal or integer).
- @param unit        A string that displays a localized version of the unit designation.
- @param minimum     The minimum value to apply, or `nil` if none is specified.
- @param maximum     The maximum value to apply, or `nil` if none is specified.
- 
+ @param style                   The style of the numeric answer (decimal or integer).
+ @param unit                    A string that displays a localized version of the unit designation.
+ @param minimum                 The minimum value to apply, or `nil` if none is specified.
+ @param maximum                 The maximum value to apply, or `nil` if none is specified.
+
  @return An initialized numeric answer format.
  */
 - (instancetype)initWithStyle:(ORKNumericAnswerStyle)style
                          unit:(nullable NSString *)unit
                       minimum:(nullable NSNumber *)minimum
-                      maximum:(nullable NSNumber *)maximum NS_DESIGNATED_INITIALIZER;
+                      maximum:(nullable NSNumber *)maximum;
+
+/**
+ Returns an initialized numeric answer format using the specified style, unit designation, range
+ values, and precision.
+ 
+ This method is the designated initializer.
+ 
+ @param style                   The style of the numeric answer (decimal or integer).
+ @param unit                    A string that displays a localized version of the unit designation.
+ @param minimum                 The minimum value to apply, or `nil` if none is specified.
+ @param maximum                 The maximum value to apply, or `nil` if none is specified.
+ @param maximumFractionDigits   The maximum fraction digits, or `nil` if no maximum is specified.
+
+ @return An initialized numeric answer format.
+ */
+- (instancetype)initWithStyle:(ORKNumericAnswerStyle)style
+                         unit:(nullable NSString *)unit
+                      minimum:(nullable NSNumber *)minimum
+                      maximum:(nullable NSNumber *)maximum
+        maximumFractionDigits:(nullable NSNumber *)maximumFractionDigits NS_DESIGNATED_INITIALIZER;
 
 /**
  The style of numeric entry (decimal or integer). (read-only)
@@ -1005,6 +1280,20 @@ Returns an initialized numeric answer format using the specified style, unit des
  The default value of this property is `nil`, which means that no maximum value is displayed.
  */
 @property (copy, nullable) NSNumber *maximum;
+
+/**
+ The maximum number of fraction digits to the right of the decimal point for the
+ numeric answer.
+ 
+ The default value of this property is `nil`, which means that there's no maximum number of fraction
+ digits.
+ */
+@property (copy, nullable) NSNumber *maximumFractionDigits;
+
+/**
+ The default numeric answer.
+ */
+@property (copy, nullable) NSNumber *defaultNumericAnswer;
 
 @end
 
@@ -1036,6 +1325,14 @@ ORK_CLASS_AVAILABLE
  the picker displays the current time of day.
  */
 @property (nonatomic, copy, readonly, nullable) NSDateComponents *defaultComponents;
+
+/**
+ The interval at which the date picker should display minutes.
+ 
+ When the value of this property is not explicitly set, the picker defaults to an interval of
+ one minute.
+ */
+@property (nonatomic) NSInteger minuteInterval;
 
 @end
 
@@ -1136,6 +1433,14 @@ When the value of this property is `nil`, there is no minimum.
  */
 @property (copy, readonly, nullable) NSCalendar *calendar;
 
+/**
+ The interval at which the date picker should display minutes.
+ 
+ When the value of this property is not explicitly set, the picker defaults to an interval of
+ one minute.
+ */
+@property (nonatomic) NSInteger minuteInterval;
+
 @end
 
 
@@ -1154,13 +1459,13 @@ ORK_CLASS_AVAILABLE
  
  This method is one of the designated initializers.
  
- @param validationRegex           The regular expression used to validate the text.
- @param invalidMessage            The text presented to the user when invalid input is received.
+ @param validationRegularExpression     The regular expression used to validate the text.
+ @param invalidMessage                  The text presented to the user when invalid input is received.
  
  @return An initialized validated text answer format.
  */
-- (instancetype)initWithValidationRegex:(NSString *)validationRegex
-                         invalidMessage:(NSString *)invalidMessage NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithValidationRegularExpression:(NSRegularExpression *)validationRegularExpression
+                                     invalidMessage:(NSString *)invalidMessage NS_DESIGNATED_INITIALIZER;
 
 /**
  Returns an initialized text answer format using the specified maximum string length.
@@ -1175,11 +1480,11 @@ ORK_CLASS_AVAILABLE
 - (instancetype)initWithMaximumLength:(NSInteger)maximumLength NS_DESIGNATED_INITIALIZER;
 
 /**
- The regex used to validate user's input.
+ The regular expression used to validate user's input.
  
  The default value is nil. If set to nil, no validation will be performed.
  */
-@property (nonatomic, copy, nullable) NSString *validationRegex;
+@property (nonatomic, copy, nullable) NSRegularExpression *validationRegularExpression;
 
 /**
  The text presented to the user when invalid input is received.
@@ -1187,6 +1492,13 @@ ORK_CLASS_AVAILABLE
  The default value is nil.
  */
 @property (nonatomic, copy, nullable) NSString *invalidMessage;
+
+/**
+ The text to be used as an answer if user input is not mandatory.
+ 
+ The default value is nil. If set to nil, user input is mandatory to answer.
+ */
+@property (nonatomic, copy, nullable) NSString *defaultTextAnswer;
 
 /**
  The maximum length of the text users can enter.
@@ -1231,11 +1543,26 @@ ORK_CLASS_AVAILABLE
 @property UIKeyboardType keyboardType;
 
 /**
+ The semantic UITextContentType that applies to the user's input.
+ 
+ If specified the system can improve keyboard suggestions to help with filling forms and other
+ input. By default, the value of this property is `nil` meaning no specific type.
+ */
+@property (nonatomic, copy, nullable) UITextContentType textContentType;
+
+/**
+ The password generation rules to use for Automatic Secure Passwords.
+ 
+ If specified, overrides the default passsword generation rules for fields with secureTextEntry.
+ */
+@property (nonatomic, copy, nullable) UITextInputPasswordRules *passwordRules API_AVAILABLE(ios(12));
+
+/**
  Identifies whether the text object should hide the text being entered.
  
  By default, the value of this property is NO.
  */
-@property(nonatomic,getter=isSecureTextEntry) BOOL secureTextEntry;
+@property (nonatomic,getter=isSecureTextEntry) BOOL secureTextEntry;
 
 @end
 
@@ -1248,6 +1575,17 @@ ORK_CLASS_AVAILABLE
  */
 ORK_CLASS_AVAILABLE
 @interface ORKEmailAnswerFormat : ORKAnswerFormat
+
+/**
+ Identifies whether this email answer format is being used as a username.
+ 
+ For integration with iOS 12's password management functionality. Use this answer format if your
+ username is also an email address, if it is not guaranteed to be an email address, use
+ `ORKTextAnswerFormat` and set the `textContentType` to `UITextContentTypeUsername`.
+ 
+ By default, the value of this property is NO.
+ */
+@property (nonatomic,getter=isUsernameField) BOOL usernameField;
 
 @end
 
@@ -1328,9 +1666,147 @@ ORK_CLASS_AVAILABLE
 - (instancetype)initWithMeasurementSystem:(ORKMeasurementSystem)measurementSystem NS_DESIGNATED_INITIALIZER;
 
 /**
+ The measurement system used by the answer format.
+ */
+@property (readonly) ORKMeasurementSystem measurementSystem;
+
+@end
+
+
+/**
+ The `ORKWeightAnswerFormat` class represents the answer format for questions that require users
+ to enter a weight.
+ 
+ A weight answer format produces an `ORKNumericQuestionResult` object. The result is always reported
+ in the metric system using the `kg` unit.
+ */
+ORK_CLASS_AVAILABLE
+@interface ORKWeightAnswerFormat : ORKAnswerFormat
+
+/**
+ Returns an initialized weight answer format using the measurement system specified in the current
+ locale.
+ 
+ @return An initialized weight answer format.
+ */
+- (instancetype)init;
+
+/**
+ Returns an initialized weight answer format using the specified measurement system.
+ 
+ This method is the designated initializer.
+ 
+ @param measurementSystem   The measurement system to use. See `ORKMeasurementSystem` for the
+ accepted values.
+ 
+ @return An initialized weight answer format.
+ */
+- (instancetype)initWithMeasurementSystem:(ORKMeasurementSystem)measurementSystem;
+
+/**
+ Returns an initialized weight answer format using the specified measurement system and numeric
+ precision.
+ 
+ @param measurementSystem       The measurement system to use. See `ORKMeasurementSystem` for the
+                                    accepted values.
+ @param numericPrecision        The numeric precision used by the picker. If you pass
+                                    `ORKNumericPrecisionDefault`, the picker will use 0.5 kg
+                                    increments for the metric measurement system and whole pound
+                                    increments for the USC measurement system, which mimics the
+                                    default iOS behavior. If you pass `ORKNumericPrecisionLow`, the
+                                    picker will use 1 kg increments for the metric measurement
+                                    system and whole pound increments for the USC measurement
+                                    system. If you pass `ORKNumericPrecisionHigher`, the picker
+                                    use 0.01 gr increments for the metric measurement system,
+                                    and ounce increments for the USC measurement system.
+ 
+ @return An initialized weight answer format.
+ */
+- (instancetype)initWithMeasurementSystem:(ORKMeasurementSystem)measurementSystem
+                         numericPrecision:(ORKNumericPrecision)numericPrecision;
+
+/**
+ Returns an initialized weight answer format using the specified measurement system, numeric
+ precision, and default, minimum and maximum values.
+ 
+ @param measurementSystem       The measurement system to use. See `ORKMeasurementSystem` for the
+                                    accepted values.
+ @param numericPrecision        The numeric precision used by the picker. If you pass
+                                    `ORKNumericPrecisionDefault`, the picker will use 0.5 kg
+                                    increments for the metric measurement system and whole pound
+                                    increments for the USC measurement system, which mimics the
+                                    default iOS behavior. If you pass `ORKNumericPrecisionLow`, the
+                                    picker will use 1 kg increments for the metric measurement
+                                    system and whole pound increments for the USC measurement
+                                    system. If you pass `ORKNumericPrecisionHigher`, the picker
+                                    use 0.01 gr increments for the metric measurement system,
+                                    and ounce increments for the USC measurement system.
+ @param minimumValue            The minimum value that is displayed in the picker. If you specify
+                                    `ORKDefaultValue`, the minimum values are 0 kg when using the
+                                    metric measurement system and 0 lbs when using the USC
+                                    measurement system.
+ @param maximumValue            The maximum value that is displayed in the picker. If you specify
+                                    `ORKDefaultValue`, the maximum values are 657 kg when using the
+                                    metric measurement system and 1,450 lbs when using the USC
+                                    measurement system.
+ @param defaultValue            The default value to be initially selected in the picker. If you
+                                    specify `ORKDefaultValue`, the initally selected values are
+                                    60 kg when using the metric measurement system and 133 lbs when
+                                    using the USC measurement system. This value must be between
+                                    `minimumValue` and `maximumValue`.
+ 
+ @return An initialized weight answer format.
+ */
+- (instancetype)initWithMeasurementSystem:(ORKMeasurementSystem)measurementSystem
+                         numericPrecision:(ORKNumericPrecision)numericPrecision
+                             minimumValue:(double)minimumValue
+                             maximumValue:(double)maximumValue
+                             defaultValue:(double)defaultValue NS_DESIGNATED_INITIALIZER;
+
+/**
  Indicates the measurement system used by the answer format.
  */
 @property (readonly) ORKMeasurementSystem measurementSystem;
+
+/**
+ The numeric precision used by the picker.
+ 
+ An `ORKNumericPrecisionDefault` value indicates that the picker will use 0.5 kg increments for the
+ metric measurement system and whole pound increments for the USC measurement system, which mimics
+ the default iOS behavior. An `ORKNumericPrecisionLow` value indicates that the picker will use
+ 1 kg increments for the metric measurement system and whole pound increments for the USC
+ measurement system. An `ORKNumericPrecisionHigher` value indicates that the picker will use
+ 0.01 gr increments for the metric measurement system and ounce increments for the USC measurement
+ system.
+ 
+ The default value of this property is `ORKNumericPrecisionDefault`.
+ */
+@property (readonly, getter=isAdditionalPrecision) ORKNumericPrecision numericPrecision;
+
+/**
+ The minimum value that is displayed in the picker.
+ 
+ When this property has a value equal to `ORKDefaultValue`, the minimum values are 0 kg when using
+ the metric measurement system and 0 lbs when using the USC measurement system.
+ */
+@property (readonly) double minimumValue;
+
+/**
+ The maximum value that is displayed in the picker.
+ 
+ When this property has a value equal to `ORKDefaultValue`, the maximum values are 657 kg when using
+ the metric measurement system and 1,450 lbs when using the USC measurement system.
+ */
+@property (readonly) double maximumValue;
+
+/**
+ The default value to initially selected in the picker.
+ 
+ When this property has a value equal to `ORKDefaultValue`, the initally selected values are 60 kg
+ when using the metric measurement system and 133 lbs when using the USC measurement system. This
+ value must be between `minimumValue` and `maximumValue`.
+ */
+@property (readonly) double defaultValue;
 
 @end
 

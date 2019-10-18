@@ -36,16 +36,20 @@
 #import "ORKNavigationContainerView_Internal.h"
 #import "ORKStepHeaderView_Internal.h"
 #import "ORKStepViewController_Internal.h"
-#import "ORKVerticalContainerView_Internal.h"
+#import "ORKTaskViewController_Internal.h"
+#import "ORKStepContainerView_Private.h"
+#import "ORKStepView_Private.h"
 
 #import "ORKResult_Private.h"
+#import "ORKCollectionResult_Private.h"
+#import "ORKSignatureResult_Private.h"
 #import "ORKStep.h"
 
 #import "ORKHelpers_Internal.h"
 #import "ORKSkin.h"
 
 
-@interface ORKConsentSignatureWrapperView : UIView
+@interface ORKSignatureWrapperView : UIView
 
 @property (nonatomic, strong) ORKSignatureView *signatureView;
 
@@ -56,12 +60,10 @@
 @end
 
 
-@implementation ORKConsentSignatureWrapperView {
-}
+@implementation ORKSignatureWrapperView
 
 - (void)willMoveToWindow:(UIWindow *)newWindow {
     [super willMoveToWindow:newWindow];
-    _signatureView.layoutMargins = (UIEdgeInsets){.top = ORKGetMetricForWindow(ORKScreenMetricLearnMoreBaselineToStepViewTopWithNoLearnMore, newWindow) - ABS([ORKTextButton defaultFont].descender) - 1};
     [self setNeedsLayout];
 }
 
@@ -81,10 +83,6 @@
         {
             _signatureView = [ORKSignatureView new];
             [_signatureView setClipsToBounds:YES];
-            
-            // This allows us to layout the signature view sticking up a bit past the top of the superview,
-            // so drawing can extend higher
-            _signatureView.layoutMargins = (UIEdgeInsets){.top=36};
             
             _signatureView.translatesAutoresizingMaskIntoConstraints = NO;
             [self addSubview:_signatureView];
@@ -150,13 +148,8 @@
                                                                              metrics:nil
                                                                                views:views]];
     
-    /*
-     Using top margin here is a hack to get the drawable area of the signature view to poke up
-     a bit past the top of this view. Doing anything else would be a layering violation, so...
-     we do this.
-     */
     [constraints addObject:[NSLayoutConstraint constraintWithItem:_signatureView
-                                                        attribute:NSLayoutAttributeTopMargin
+                                                        attribute:NSLayoutAttributeTop
                                                         relatedBy:NSLayoutRelationEqual
                                                            toItem:self
                                                         attribute:NSLayoutAttributeTop
@@ -185,28 +178,28 @@
 @end
 
 
-@interface ORKConsentSigningView : ORKVerticalContainerView
+@interface ORKConsentSigningView : ORKStepContainerView
 
-@property (nonatomic, strong) ORKConsentSignatureWrapperView *wrapperView;
+@property (nonatomic, strong) ORKSignatureWrapperView *wrapperView;
 
 @end
 
 
 @implementation ORKConsentSigningView
 
-- (instancetype)initWithFrame:(CGRect)frame {
-    self = [super initWithFrame:frame];
+- (instancetype)init
+{
+    self = [super init];
     if (self) {
-        
-        _wrapperView = [ORKConsentSignatureWrapperView new];
-        _wrapperView.translatesAutoresizingMaskIntoConstraints = NO;
-        
-        self.stepView = _wrapperView;
-        
-        self.continueSkipContainer.optional = NO;
-        [self.continueSkipContainer updateContinueAndSkipEnabled];
+        [self setupWrapperView];
     }
     return self;
+}
+
+- (void)setupWrapperView {
+    _wrapperView = [ORKSignatureWrapperView new];
+    _wrapperView.translatesAutoresizingMaskIntoConstraints = NO;
+    self.customContentView = _wrapperView;
 }
 
 @end
@@ -216,13 +209,15 @@
 
 @property (nonatomic, strong, readonly, nullable) ORKSignatureView *signatureView;
 @property (nonatomic, strong) ORKConsentSigningView *signingView;
-@property (nonatomic, strong) ORKNavigationContainerView *continueSkipView;
+@property (nonatomic, strong) ORKNavigationContainerView *navigationFooterView;
 @property (nonatomic, strong) NSArray <UIBezierPath *> *originalPath;
 
 @end
 
 
-@implementation ORKSignatureStepViewController
+@implementation ORKSignatureStepViewController {
+    NSArray<NSLayoutConstraint *> *_constraints;
+}
 
 - (instancetype)initWithStep:(ORKStep *)step result:(ORKResult *)result {
     self = [super initWithStep:step result:result];
@@ -242,7 +237,7 @@
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    
+
     // set the original path and update state
     self.signatureView.signaturePath = self.originalPath;
     [self updateButtonStates];
@@ -262,21 +257,26 @@
 
 - (void)setContinueButtonItem:(UIBarButtonItem *)continueButtonItem {
     [super setContinueButtonItem:continueButtonItem];
-    self.continueSkipView.continueButtonItem = continueButtonItem;
+    self.navigationFooterView.continueButtonItem = continueButtonItem;
     [self updateButtonStates];
 }
 
 - (void)setSkipButtonItem:(UIBarButtonItem *)skipButtonItem {
     [super setSkipButtonItem:skipButtonItem];
-    self.continueSkipView.skipButtonItem = skipButtonItem;
+    self.navigationFooterView.skipButtonItem = skipButtonItem;
     [self updateButtonStates];
 }
 
 - (void)updateButtonStates {
     BOOL hasSigned = self.signatureView.signatureExists;
-    self.continueSkipView.continueEnabled = hasSigned;
-    self.continueSkipView.optional = self.step.optional;
+    self.navigationFooterView.continueEnabled = hasSigned;
+    self.navigationFooterView.optional = self.step.optional;
     [_signingView.wrapperView setClearButtonEnabled:hasSigned];
+}
+
+- (void)setCancelButtonItem:(UIBarButtonItem *)cancelButtonItem {
+    [super setCancelButtonItem:cancelButtonItem];
+    self.navigationFooterView.cancelButtonItem = cancelButtonItem;
 }
 
 - (void)stepDidChange {
@@ -289,17 +289,71 @@
     _signingView.wrapperView.signatureView.delegate = self;
     _signingView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
     _signingView.frame = self.view.bounds;
-    _signingView.headerView.captionLabel.text = self.step.title;
-    _signingView.headerView.instructionLabel.text = self.step.text;
-    
-    _continueSkipView = _signingView.continueSkipContainer;
-    _continueSkipView.skipButtonItem = self.skipButtonItem;
-    _continueSkipView.continueButtonItem = self.continueButtonItem;
+    _signingView.stepTitle = self.step.title;
+    _signingView.stepText = self.step.text;
+    _signingView.stepDetailText = self.step.detailText;
+    _signingView.stepTopContentImage = self.step.image;
+    _signingView.stepTopContentImageContentMode = self.step.imageContentMode;
+    _signingView.bodyItems = self.step.bodyItems;
+    [self setupNavigationFooterView];
+
     [self updateButtonStates];
     
     [_signingView.wrapperView.clearButton addTarget:self action:@selector(clearAction:) forControlEvents:UIControlEventTouchUpInside];
     
     [self.view addSubview:_signingView];
+    [self setupConstraints];
+}
+
+- (void)setupNavigationFooterView {
+    if (!_navigationFooterView && _signingView) {
+        _navigationFooterView = _signingView.navigationFooterView;
+    }
+    _navigationFooterView.skipButtonItem = self.skipButtonItem;
+    _navigationFooterView.continueButtonItem = self.continueButtonItem;
+    _navigationFooterView.cancelButtonItem = self.cancelButtonItem;
+    
+    _navigationFooterView.optional = NO;
+    [_navigationFooterView updateContinueAndSkipEnabled];
+}
+
+- (void)setupConstraints {
+    if (_constraints) {
+        [NSLayoutConstraint deactivateConstraints:_constraints];
+    }
+    _constraints = nil;
+    _signingView.translatesAutoresizingMaskIntoConstraints = NO;
+    _constraints = @[
+                     [NSLayoutConstraint constraintWithItem:_signingView
+                                                  attribute:NSLayoutAttributeTop
+                                                  relatedBy:NSLayoutRelationEqual
+                                                     toItem:self.view
+                                                  attribute:NSLayoutAttributeTop
+                                                 multiplier:1.0
+                                                   constant:0.0],
+                     [NSLayoutConstraint constraintWithItem:_signingView
+                                                  attribute:NSLayoutAttributeLeft
+                                                  relatedBy:NSLayoutRelationEqual
+                                                     toItem:self.view
+                                                  attribute:NSLayoutAttributeLeft
+                                                 multiplier:1.0
+                                                   constant:0.0],
+                     [NSLayoutConstraint constraintWithItem:_signingView
+                                                  attribute:NSLayoutAttributeRight
+                                                  relatedBy:NSLayoutRelationEqual
+                                                     toItem:self.view
+                                                  attribute:NSLayoutAttributeRight
+                                                 multiplier:1.0
+                                                   constant:0.0],
+                     [NSLayoutConstraint constraintWithItem:_signingView
+                                                  attribute:NSLayoutAttributeBottom
+                                                  relatedBy:NSLayoutRelationEqual
+                                                     toItem:self.view
+                                                  attribute:NSLayoutAttributeBottom
+                                                 multiplier:1.0
+                                                   constant:0.0]
+                     ];
+    [NSLayoutConstraint activateConstraints:_constraints];
 }
 
 - (ORKSignatureView *)signatureView {

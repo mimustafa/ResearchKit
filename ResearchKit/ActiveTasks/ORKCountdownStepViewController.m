@@ -36,7 +36,6 @@
 #import "ORKCustomStepView_Internal.h"
 #import "ORKLabel.h"
 #import "ORKSubheadlineLabel.h"
-#import "ORKVerticalContainerView.h"
 
 #import "ORKActiveStepViewController_Internal.h"
 #import "ORKStepViewController_Internal.h"
@@ -51,6 +50,7 @@
 @interface ORKCountDownViewLabel : ORKLabel
 
 @end
+
 
 @implementation ORKCountDownViewLabel
 + (UIFont *)defaultFont {
@@ -84,6 +84,7 @@ static const CGFloat ProgressIndicatorOuterMargin = 1.0;
         _textLabel.textAlignment = NSTextAlignmentCenter;
         _textLabel.translatesAutoresizingMaskIntoConstraints = NO;
         _textLabel.text =  ORKLocalizedString(@"COUNTDOWN_LABEL", nil);
+        _textLabel.adjustsFontSizeToFitWidth = YES;
         [self addSubview:_textLabel];
         
         _timeLabel = [ORKCountDownViewLabel new];
@@ -178,8 +179,8 @@ static const CGFloat ProgressIndicatorOuterMargin = 1.0;
     CAKeyframeAnimation *animation = [CAKeyframeAnimation animationWithKeyPath:@"strokeEnd"];
     animation.duration = duration * 2;
     animation.removedOnCompletion = YES;
-    animation.values = @[@(1.0), @(0.0), @(0.0)];
-    animation.keyTimes =  @[@(0.0), @(0.5), @(1.0)];
+    animation.values = @[ @(1.0), @(0.0), @(0.0) ];
+    animation.keyTimes =  @[ @(0.0), @(0.5), @(1.0) ];
     animation.timingFunction=[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
     [_circleLayer addAnimation:animation forKey:@"drawCircleAnimation"];
 }
@@ -233,7 +234,6 @@ static const CGFloat ProgressIndicatorOuterMargin = 1.0;
     _countdownView = [[ORKCountdownView alloc] init];
     _countdownView.translatesAutoresizingMaskIntoConstraints = NO;
     self.activeStepView.activeCustomView = _countdownView;
-    
     [self updateCountdownLabel];
 }
 

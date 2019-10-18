@@ -100,14 +100,14 @@ ORKDefineStringKey(NavigableOrderedTaskIdentifier);
     answerFormat = [ORKAnswerFormat choiceAnswerFormatWithStyle:ORKChoiceAnswerStyleSingleChoice
                                                     textChoices:textChoices];
     stepIdentifier = SymptomStepIdentifier;
-    step = [ORKQuestionStep questionStepWithIdentifier:stepIdentifier title:@"What is your symptom?" answer:answerFormat];
+    step = [ORKQuestionStep questionStepWithIdentifier:stepIdentifier title:@"Survey" question:@"What is your symptom?" answer:answerFormat];
     step.optional = NO;
     [stepIdentifiers addObject:stepIdentifier];
     [steps addObject:step];
     
     answerFormat = [ORKAnswerFormat booleanAnswerFormat];
     stepIdentifier = SeverityStepIdentifier;
-    step = [ORKQuestionStep questionStepWithIdentifier:stepIdentifier title:@"Does your symptom interferes with your daily life?" answer:answerFormat];
+    step = [ORKQuestionStep questionStepWithIdentifier:stepIdentifier title:@"Survey" question:@"Does your symptom interferes with your daily life?" answer:answerFormat];
     step.optional = NO;
     [stepIdentifiers addObject:stepIdentifier];
     [steps addObject:step];
@@ -630,8 +630,8 @@ ORKDefineStringKey(DefaultDestinationStepIdentifier);
 
 static const NSInteger AdditionalIntegerValue = 42;
 
-static NSDate *(^Date)() = ^NSDate *{ return [NSDate dateWithTimeIntervalSince1970:60*60*24]; };
-static NSDateComponents *(^DateComponents)() = ^NSDateComponents *{
+static NSDate *(^Date)(void) = ^NSDate *{ return [NSDate dateWithTimeIntervalSince1970:60*60*24]; };
+static NSDateComponents *(^DateComponents)(void) = ^NSDateComponents *{
     NSDateComponents *dateComponents = [NSDateComponents new];
     dateComponents.hour = 6;
     dateComponents.minute = 6;
@@ -1562,13 +1562,13 @@ static ORKStepResult *(^getConsentStepResult)(NSString *, NSString *, BOOL) = ^O
     XCTAssertEqual(instructions.count, 1);
     ORKStep *instructionStep = [instructions firstObject];
     XCTAssertEqualObjects(instructionStep.title, @"Left Hand");
-    XCTAssertEqualObjects(instructionStep.text, @"Put your phone on a flat surface. Use two fingers on your left hand to alternately tap the buttons on the screen. Tap one finger, then the other. Try to time your taps to be as even as possible. Keep tapping for 10 seconds.");
+    XCTAssertEqualObjects(instructionStep.text, @"Put your device on a flat surface. Use two fingers on your left hand to alternately tap the buttons on the screen. Tap one finger, then the other. Try to time your taps to be as even as possible. Keep tapping for 10 seconds.");
     
     // Look for the activity step
     NSArray *tappings = filteredSteps(@"tapping", @"left");
     XCTAssertEqual(tappings.count, 1);
     ORKStep *tappingStep = [tappings firstObject];
-    XCTAssertEqualObjects(tappingStep.title, @"Tap the buttons using your LEFT hand.");
+    XCTAssertEqualObjects(tappingStep.text, @"Tap the buttons using your LEFT hand.");
     XCTAssertFalse(tappingStep.optional);
     
 }
@@ -1601,13 +1601,13 @@ static ORKStepResult *(^getConsentStepResult)(NSString *, NSString *, BOOL) = ^O
     XCTAssertEqual(instructions.count, 1);
     ORKStep *instructionStep = [instructions firstObject];
     XCTAssertEqualObjects(instructionStep.title, @"Right Hand");
-    XCTAssertEqualObjects(instructionStep.text, @"Put your phone on a flat surface. Use two fingers on your right hand to alternately tap the buttons on the screen. Tap one finger, then the other. Try to time your taps to be as even as possible. Keep tapping for 10 seconds.");
+    XCTAssertEqualObjects(instructionStep.text, @"Put your device on a flat surface. Use two fingers on your right hand to alternately tap the buttons on the screen. Tap one finger, then the other. Try to time your taps to be as even as possible. Keep tapping for 10 seconds.");
     
     // Look for the activity step
     NSArray *tappings = filteredSteps(@"tapping", @"right");
     XCTAssertEqual(tappings.count, 1);
     ORKStep *tappingStep = [tappings firstObject];
-    XCTAssertEqualObjects(tappingStep.title, @"Tap the buttons using your RIGHT hand.");
+    XCTAssertEqualObjects(tappingStep.text, @"Tap the buttons using your RIGHT hand.");
     XCTAssertFalse(tappingStep.optional);
     
 }
@@ -1654,22 +1654,22 @@ static ORKStepResult *(^getConsentStepResult)(NSString *, NSString *, BOOL) = ^O
             // Depending upon the seed (clock time) this will be either the right or left hand
             // Without using OCMock, cannot easily verify that both will display.
             if (isRightFirst) {
-                XCTAssertEqualObjects(rightInstructionStep.text, @"Put your phone on a flat surface. Use two fingers on your right hand to alternately tap the buttons on the screen. Tap one finger, then the other. Try to time your taps to be as even as possible. Keep tapping for 10 seconds.");
-                XCTAssertEqualObjects(leftInstructionStep.text, @"Put your phone on a flat surface. Now repeat the same test using your left hand. Tap one finger, then the other. Try to time your taps to be as even as possible. Keep tapping for 10 seconds.");
+                XCTAssertEqualObjects(rightInstructionStep.text, @"Put your device on a flat surface. Use two fingers on your right hand to alternately tap the buttons on the screen. Tap one finger, then the other. Try to time your taps to be as even as possible. Keep tapping for 10 seconds.");
+                XCTAssertEqualObjects(leftInstructionStep.text, @"Put your device on a flat surface. Now repeat the same test using your left hand. Tap one finger, then the other. Try to time your taps to be as even as possible. Keep tapping for 10 seconds.");
             } else {
-                XCTAssertEqualObjects(leftInstructionStep.text, @"Put your phone on a flat surface. Use two fingers on your left hand to alternately tap the buttons on the screen. Tap one finger, then the other. Try to time your taps to be as even as possible. Keep tapping for 10 seconds.");
-                XCTAssertEqualObjects(rightInstructionStep.text, @"Put your phone on a flat surface. Now repeat the same test using your right hand. Tap one finger, then the other. Try to time your taps to be as even as possible. Keep tapping for 10 seconds.");
+                XCTAssertEqualObjects(leftInstructionStep.text, @"Put your device on a flat surface. Use two fingers on your left hand to alternately tap the buttons on the screen. Tap one finger, then the other. Try to time your taps to be as even as possible. Keep tapping for 10 seconds.");
+                XCTAssertEqualObjects(rightInstructionStep.text, @"Put your device on a flat surface. Now repeat the same test using your right hand. Tap one finger, then the other. Try to time your taps to be as even as possible. Keep tapping for 10 seconds.");
             }
             
             // Look for tapping steps
             ORKStep *rightTapStep = filteredSteps(@"tapping", @"right");
             XCTAssertNotNil(rightTapStep);
-            XCTAssertEqualObjects(rightTapStep.title, @"Tap the buttons using your RIGHT hand.");
+            XCTAssertEqualObjects(rightTapStep.text, @"Tap the buttons using your RIGHT hand.");
             XCTAssertTrue(rightTapStep.optional);
             
             ORKStep *leftTapStep = filteredSteps(@"tapping", @"left");
             XCTAssertNotNil(leftTapStep);
-            XCTAssertEqualObjects(leftTapStep.title, @"Tap the buttons using your LEFT hand.");
+            XCTAssertEqualObjects(leftTapStep.text, @"Tap the buttons using your LEFT hand.");
             XCTAssertTrue(leftTapStep.optional);
         }
     }
@@ -1679,7 +1679,55 @@ static ORKStepResult *(^getConsentStepResult)(NSString *, NSString *, BOOL) = ^O
 }
 
 
+#pragma mark - Test Tremor Task navigation
+
+- (void)testKeyValueStepModifier {
+    
+    // Setup the task
+    ORKStep *boolStep = [ORKQuestionStep  questionStepWithIdentifier:@"question"
+                                                               title:@"Question"
+                                                            question:@"Yes or No"
+                                                              answer:[ORKAnswerFormat booleanAnswerFormat]];
+    
+    ORKStep *nextStep = [[ORKInstructionStep alloc] initWithIdentifier:@"nextStep"];
+    nextStep.title = @"Yes";
+
+    ORKNavigableOrderedTask *task = [[ORKNavigableOrderedTask alloc] initWithIdentifier:NavigableOrderedTaskIdentifier
+                                                                                  steps:@[boolStep, nextStep]];
+    
+    ORKResultSelector *resultSelector = [ORKResultSelector selectorWithStepIdentifier:@"question"
+                                                                     resultIdentifier:@"question"];
+    NSPredicate *predicate = [ORKResultPredicate predicateForBooleanQuestionResultWithResultSelector:resultSelector
+                                                                                      expectedAnswer:NO];
+    ORKStepModifier *stepModifier = [[ORKKeyValueStepModifier alloc] initWithResultPredicate:predicate
+                                                                               keyValueMap:@{ @"title" : @"No" }];
+    
+    [task setStepModifier:stepModifier forStepIdentifier:@"nextStep"];
+    
+    // -- Check the title if the answer is YES
+    ORKBooleanQuestionResult *result = [[ORKBooleanQuestionResult alloc] initWithIdentifier:@"question"];
+    result.booleanAnswer = @(YES);
+    ORKStepResult *stepResult = [[ORKStepResult alloc] initWithStepIdentifier:@"question" results:@[result]];
+    ORKTaskResult *taskResult = [[ORKTaskResult alloc] initWithIdentifier:NavigableOrderedTaskIdentifier];
+    taskResult.results = @[stepResult];
+    
+    // For the case where the answer is YES, then the title should be "Yes" (unmodified)
+    ORKStep *yesStep = [task stepAfterStep:boolStep withResult:taskResult];
+    XCTAssertEqualObjects(yesStep.title, @"Yes");
+    
+    // -- Check the title if the answer is NO
+    result.booleanAnswer = @(NO);
+    stepResult = [[ORKStepResult alloc] initWithStepIdentifier:@"question" results:@[result]];
+    taskResult.results = @[stepResult];
+    
+    // For the case where the answer is NO, then the title should be modified to be "No"
+    ORKStep *noStep = [task stepAfterStep:boolStep withResult:taskResult];
+    XCTAssertEqualObjects(noStep.title, @"No");
+}
+
+
 @end
+
 
 @implementation MethodObject
 @end

@@ -35,6 +35,87 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+typedef NS_ENUM(NSInteger, ORKBulletType) {
+    ORKBulletTypeNone = 0,
+    ORKBulletTypeCircle,
+    ORKBulletTypeImage,
+    ORKBulletTypeNumber
+} ORK_ENUM_AVAILABLE;
+
+/**
+ The `ORKTableStepSource` is a protocol that can be used for presenting a list of model
+ objects in a UITableView. Any `ORKStep` subclass that implements this protocol can be used with
+ an `ORKTableStepViewController` to display the list of items.
+ */
+@protocol ORKTableStepSource <NSObject>
+    
+/**
+ Returns the number of rows in the section.
+ 
+ @param  section        The section of the table
+ @return                The number of rows in the tableview section
+ */
+- (NSInteger)numberOfRowsInSection:(NSInteger)section;
+
+/**
+ Method for configuring a cell.
+ 
+ @param cell            The `UITableViewCell` to configure.
+ @param indexPath       The indexpath for the cell.
+ @param tableView       The table view for this cell.
+ */
+- (void)configureCell:(UITableViewCell *)cell indexPath:(NSIndexPath *)indexPath tableView:(UITableView *)tableView;
+
+/**
+ Returns the number of sections in the tableview used to display this step. Default = `1`.
+ 
+ @return                The number of sections in the tableview.
+ */
+@optional
+- (NSInteger)numberOfSections;
+
+/**
+ Returns the reuseIdentifier for the object at this index path. Default = `ORKBasicCellReuseIdentifier`
+ 
+ @param  indexPath      The indexpath of the section/row for the cell
+ @return                The model object for this section/row
+ */
+@optional
+- (NSString *)reuseIdentifierForRowAtIndexPath:(NSIndexPath *)indexPath;
+
+/**
+ Optional override for registering UITableViewCell instances. The default registers a `UITableViewCell` 
+ for `ORKBasicCellReuseIdentifier`.
+ 
+ @param tableView       The table view to register cells
+ */
+@optional
+- (void)registerCellsForTableView:(UITableView *)tableView;
+
+/**
+ Optional override to return custom header title for section. The default returns `nil`.
+ 
+ @param section         The section for this custom header title
+ @param tableView       The table view for custom section header title
+ 
+ @return                The custom header title for this section
+ */
+@optional
+- (nullable NSString *)titleForHeaderInSection:(NSInteger)section tableView:(UITableView *)tableView;
+
+/**
+ Optional override to return custom header view for section. The default returns `nil`.
+ 
+ @param section         The section for this custom header view
+ @param tableView       The table view for custom section header view
+ 
+ @return                The custom header view for this section
+ */
+@optional
+- (nullable UIView *)viewForHeaderInSection:(NSInteger)section tableView:(UITableView *)tableView;
+
+@end
+
 /**
  The `ORKTableStep` class is a concrete subclass of `ORKStep`, used for presenting a list of model 
  objects in a UITableView.
@@ -51,12 +132,37 @@ NS_ASSUME_NONNULL_BEGIN
  */
 
 ORK_CLASS_AVAILABLE
-@interface ORKTableStep : ORKStep
+@interface ORKTableStep : ORKStep <ORKTableStepSource>
 
 /**
  The array of items in table. These items must conform to NSCopying and NSSecureCoding protocols.
  */
 @property (nonatomic, copy, nullable) NSArray <id <NSObject, NSCopying, NSSecureCoding>> *items;
+
+/**
+ Boolean flag representing if the table data should be displayed in a bulleted format.
+ */
+@property (nonatomic) BOOL isBulleted DEPRECATED_MSG_ATTRIBUTE("isBulleted property has been deprecated. Please use 'bulletType' property to indicate `ORKBulletType` enum.");
+
+/**
+ The bullet type to use for bullet items.
+ */
+@property (nonatomic) ORKBulletType bulletType;
+
+/**
+ The array of icon names to display instead of bullets.
+ 
+ Images are only visible if the isBulleted property is set to YES. Images names must reference
+ images in you application project not the ResearchKit framework.
+ */
+@property (nonatomic, copy, nullable) NSArray <NSString *> *bulletIconNames;
+
+/**
+ Boolean flag representing if the table rows should be selectable.
+ 
+ Default value is NO
+ */
+@property (nonatomic) BOOL allowsSelection;
 
 /**
  Returns the number of sections in the tableview used to display this step. Default = `1`.

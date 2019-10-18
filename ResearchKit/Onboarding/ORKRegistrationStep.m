@@ -43,9 +43,10 @@ NSString *const ORKRegistrationFormItemIdentifierGivenName = @"ORKRegistrationFo
 NSString *const ORKRegistrationFormItemIdentifierFamilyName = @"ORKRegistrationFormItemFamilyName";
 NSString *const ORKRegistrationFormItemIdentifierGender = @"ORKRegistrationFormItemGender";
 NSString *const ORKRegistrationFormItemIdentifierDOB = @"ORKRegistrationFormItemDOB";
+NSString *const ORKRegistrationFormItemIdentifierPhoneNumber = @"ORKRegistrationFormItemPhoneNumber";
 
-static id ORKFindInArrayByFormItemId(NSArray *array, NSString *formItemIdentifier) {
-    return findInArrayByKey(array, @"identifier", formItemIdentifier);
+static _Nullable id ORKFindInArrayByFormItemId(NSArray *array, NSString *formItemIdentifier) {
+    return ORKFindInArrayByKey(array, @"identifier", formItemIdentifier);
 }
 
 static NSArray <ORKFormItem*> *ORKRegistrationFormItems(ORKRegistrationStepOption options) {
@@ -53,6 +54,7 @@ static NSArray <ORKFormItem*> *ORKRegistrationFormItems(ORKRegistrationStepOptio
     
     {
         ORKEmailAnswerFormat *answerFormat = [ORKAnswerFormat emailAnswerFormat];
+        answerFormat.usernameField = YES;
         
         ORKFormItem *item = [[ORKFormItem alloc] initWithIdentifier:ORKRegistrationFormItemIdentifierEmail
                                                                text:ORKLocalizedString(@"EMAIL_FORM_ITEM_TITLE", nil)
@@ -71,6 +73,12 @@ static NSArray <ORKFormItem*> *ORKRegistrationFormItems(ORKRegistrationStepOptio
         answerFormat.autocapitalizationType = UITextAutocapitalizationTypeNone;
         answerFormat.autocorrectionType = UITextAutocorrectionTypeNo;
         answerFormat.spellCheckingType = UITextSpellCheckingTypeNo;
+        
+        if (@available(iOS 12.0, *)) {
+            answerFormat.textContentType = UITextContentTypeNewPassword;
+        } else {
+            answerFormat.textContentType = UITextContentTypePassword;
+        }
         
         ORKFormItem *item = [[ORKFormItem alloc] initWithIdentifier:ORKRegistrationFormItemIdentifierPassword
                                                                text:ORKLocalizedString(@"PASSWORD_FORM_ITEM_TITLE", nil)
@@ -91,7 +99,7 @@ static NSArray <ORKFormItem*> *ORKRegistrationFormItems(ORKRegistrationStepOptio
         [formItems addObject:item];
     }
     
-    if (options & (ORKRegistrationStepIncludeFamilyName | ORKRegistrationStepIncludeGivenName | ORKRegistrationStepIncludeDOB | ORKRegistrationStepIncludeGender)) {
+    if (options & (ORKRegistrationStepIncludeFamilyName | ORKRegistrationStepIncludeGivenName | ORKRegistrationStepIncludeDOB | ORKRegistrationStepIncludeGender | ORKRegistrationStepIncludePhoneNumber)) {
         ORKFormItem *item = [[ORKFormItem alloc] initWithSectionTitle:ORKLocalizedString(@"ADDITIONAL_INFO_SECTION_TITLE", nil)];
         
         [formItems addObject:item];
@@ -100,6 +108,7 @@ static NSArray <ORKFormItem*> *ORKRegistrationFormItems(ORKRegistrationStepOptio
     if (options & ORKRegistrationStepIncludeGivenName) {
         ORKTextAnswerFormat *answerFormat = [ORKAnswerFormat textAnswerFormat];
         answerFormat.multipleLines = NO;
+        answerFormat.textContentType = UITextContentTypeGivenName;
         
         ORKFormItem *item = [[ORKFormItem alloc] initWithIdentifier:ORKRegistrationFormItemIdentifierGivenName
                                                                text:ORKLocalizedString(@"CONSENT_NAME_GIVEN", nil)
@@ -113,6 +122,7 @@ static NSArray <ORKFormItem*> *ORKRegistrationFormItems(ORKRegistrationStepOptio
     if (options & ORKRegistrationStepIncludeFamilyName) {
         ORKTextAnswerFormat *answerFormat = [ORKAnswerFormat textAnswerFormat];
         answerFormat.multipleLines = NO;
+        answerFormat.textContentType = UITextContentTypeFamilyName;
         
         ORKFormItem *item = [[ORKFormItem alloc] initWithIdentifier:ORKRegistrationFormItemIdentifierFamilyName
                                                                text:ORKLocalizedString(@"CONSENT_NAME_FAMILY", nil)
@@ -150,7 +160,7 @@ static NSArray <ORKFormItem*> *ORKRegistrationFormItems(ORKRegistrationStepOptio
     
     if (options & ORKRegistrationStepIncludeDOB) {
         // Calculate default date (20 years from now).
-        NSDate *defaultDate = [[NSCalendar currentCalendar] dateByAddingUnit:NSCalendarUnitYear
+        NSDate *defaultDate = [[NSCalendar calendarWithIdentifier:NSCalendarIdentifierGregorian] dateByAddingUnit:NSCalendarUnitYear
                                                                        value:-20
                                                                       toDate:[NSDate date]
                                                                      options:(NSCalendarOptions)0];
@@ -158,7 +168,7 @@ static NSArray <ORKFormItem*> *ORKRegistrationFormItems(ORKRegistrationStepOptio
         ORKDateAnswerFormat *answerFormat = [ORKAnswerFormat dateAnswerFormatWithDefaultDate:defaultDate
                                                                                  minimumDate:nil
                                                                                  maximumDate:[NSDate date]
-                                                                                    calendar:[NSCalendar currentCalendar]];
+                                                                                    calendar:[NSCalendar calendarWithIdentifier:NSCalendarIdentifierGregorian]];
         
         ORKFormItem *item = [[ORKFormItem alloc] initWithIdentifier:ORKRegistrationFormItemIdentifierDOB
                                                                text:ORKLocalizedString(@"DOB_FORM_ITEM_TITLE", nil)
@@ -169,21 +179,40 @@ static NSArray <ORKFormItem*> *ORKRegistrationFormItems(ORKRegistrationStepOptio
         [formItems addObject:item];
     }
     
+    if (options & ORKRegistrationStepIncludePhoneNumber) {
+        ORKTextAnswerFormat *answerFormat = [ORKAnswerFormat textAnswerFormat];
+        answerFormat.multipleLines = NO;
+        answerFormat.autocapitalizationType = UITextAutocapitalizationTypeNone;
+        answerFormat.autocorrectionType = UITextAutocorrectionTypeNo;
+        answerFormat.spellCheckingType = UITextSpellCheckingTypeNo;
+        answerFormat.keyboardType = UIKeyboardTypeNumbersAndPunctuation;
+        answerFormat.textContentType = UITextContentTypeTelephoneNumber;
+        
+        ORKFormItem *item = [[ORKFormItem alloc] initWithIdentifier:ORKRegistrationFormItemIdentifierPhoneNumber
+                                                               text:ORKLocalizedString(@"PHONE_NUMBER_FORM_ITEM_TITLE", nil)
+                                                       answerFormat:answerFormat
+                                                           optional:NO];
+        item.placeholder = ORKLocalizedString(@"PHONE_NUMBER_FORM_ITEM_PLACEHOLDER", nil);
+        
+        [formItems addObject:item];
+    }
+    
     return formItems;
 }
+
 
 @implementation ORKRegistrationStep
 
 - (instancetype)initWithIdentifier:(NSString *)identifier
                              title:(NSString *)title
                               text:(NSString *)text
-           passcodeValidationRegex:(NSString *)passcodeValidationRegex
+passcodeValidationRegularExpression:(NSRegularExpression *)passcodeValidationRegularExpression
             passcodeInvalidMessage:(NSString *)passcodeInvalidMessage
                            options:(ORKRegistrationStepOption)options {
     self = [super initWithIdentifier:identifier title:title text:text];
     if (self) {
         _options = options;
-        self.passcodeValidationRegex = passcodeValidationRegex;
+        self.passcodeValidationRegularExpression = passcodeValidationRegularExpression;
         self.passcodeInvalidMessage = passcodeInvalidMessage;
         self.optional = NO;
     }
@@ -197,7 +226,7 @@ static NSArray <ORKFormItem*> *ORKRegistrationFormItems(ORKRegistrationStepOptio
     return [self initWithIdentifier:identifier
                               title:title
                                text:text
-            passcodeValidationRegex:nil
+passcodeValidationRegularExpression:nil
              passcodeInvalidMessage:nil
                             options:options];
 }
@@ -223,6 +252,12 @@ static NSArray <ORKFormItem*> *ORKRegistrationFormItems(ORKRegistrationStepOptio
     return passwordAnswerFormat;
 }
 
+- (ORKTextAnswerFormat *)phoneNumberAnswerFormat {
+    ORKFormItem *phoneNumberFormItem = ORKFindInArrayByFormItemId(self.formItems, ORKRegistrationFormItemIdentifierPhoneNumber);
+    ORKTextAnswerFormat *phoneNumberAnswerFormat = (ORKTextAnswerFormat *)phoneNumberFormItem.answerFormat;
+    return phoneNumberAnswerFormat;
+}
+
 - (NSArray <ORKFormItem *> *)formItems {
     if (![super formItems]) {
         self.formItems = ORKRegistrationFormItems(_options);
@@ -244,20 +279,44 @@ static NSArray <ORKFormItem*> *ORKRegistrationFormItems(ORKRegistrationStepOptio
     return [super formItems];
 }
 
-- (NSString *)passcodeValidationRegex {
-    return [self passwordAnswerFormat].validationRegex;
+- (NSRegularExpression *)passcodeValidationRegularExpression {
+    return [self passwordAnswerFormat].validationRegularExpression;
+}
+
+- (void)setPasscodeValidationRegularExpression:(NSRegularExpression *)passcodeValidationRegularExpression {
+    [self passwordAnswerFormat].validationRegularExpression = passcodeValidationRegularExpression;
 }
 
 - (NSString *)passcodeInvalidMessage {
     return [self passwordAnswerFormat].invalidMessage;
 }
 
-- (void)setPasscodeValidationRegex:(NSString *)passcodeValidationRegex {
-    [self passwordAnswerFormat].validationRegex = passcodeValidationRegex;
-}
-
 - (void)setPasscodeInvalidMessage:(NSString *)passcodeInvalidMessage {
     [self passwordAnswerFormat].invalidMessage = passcodeInvalidMessage;
+}
+
+- (UITextInputPasswordRules *)passcodeRules {
+    return [self passwordAnswerFormat].passwordRules;
+}
+
+- (void)setPasscodeRules:(UITextInputPasswordRules *)passcodeRules {
+    [self passwordAnswerFormat].passwordRules = passcodeRules;
+}
+
+- (NSRegularExpression *)phoneNumberValidationRegularExpression {
+    return [self phoneNumberAnswerFormat].validationRegularExpression;
+}
+
+- (void)setPhoneNumberValidationRegularExpression:(NSRegularExpression *)phoneNumberValidationRegularExpression {
+    [self phoneNumberAnswerFormat].validationRegularExpression = phoneNumberValidationRegularExpression;
+}
+
+- (NSString *)phoneNumberInvalidMessage {
+    return [self phoneNumberAnswerFormat].invalidMessage;
+}
+
+- (void)setPhoneNumberInvalidMessage:(NSString *)phoneNumberInvalidMessage {
+    [self phoneNumberAnswerFormat].invalidMessage = phoneNumberInvalidMessage;
 }
 
 + (BOOL)supportsSecureCoding {
@@ -268,9 +327,10 @@ static NSArray <ORKFormItem*> *ORKRegistrationFormItems(ORKRegistrationStepOptio
     self = [super initWithCoder:aDecoder];
     if (self) {
         
-        // The `passcodeValidationRegex` and `passcodeInvalidMessage` properties
-        // are transparent properties. The `initWithCoder:` for these properties is
-        // defined in the answer format (super).
+        // `passcodeValidationRegularExpression`, `passcodeInvalidMessage`,
+        // `phoneNumberValidationRegularExpression`, and `phoneNumberInvalidMessage` are transparent
+        // properties. The corresponding decoding for these properties takes place in the answer
+        // format's `-initWithCode:` method, invoked from super's (ORKFormStep) implementation.
         ORK_DECODE_INTEGER(aDecoder, options);
     }
     return self;
@@ -279,18 +339,20 @@ static NSArray <ORKFormItem*> *ORKRegistrationFormItems(ORKRegistrationStepOptio
 - (void)encodeWithCoder:(NSCoder *)aCoder {
     [super encodeWithCoder:aCoder];
     
-    // The `passcodeValidationRegex` and `passcodeInvalidMessage` properties
-    // are transparent properties. The `encodeWithCoder:` for these properties is
-    // defined in the answer format (super).
+    // `passcodeValidationRegularExpression`, `passcodeInvalidMessage`,
+    // `phoneNumberValidationRegularExpression`, and `phoneNumberInvalidMessage` are transparent
+    // properties. The corresponding encoding for these properties takes place in the answer format's
+    // `-encodeWithCoder:` method, invoked from super's (ORKFormStep) implementation.
     ORK_ENCODE_INTEGER(aCoder, options);
 }
 
 - (instancetype)copyWithZone:(NSZone *)zone {
     ORKRegistrationStep *step = [super copyWithZone:zone];
     
-    // The `passcodeValidationRegex` and `passcodeInvalidMessage` properties
-    // are transparent properties. The `copyWithZone:` for these properties is
-    // defined in the answer format (super).
+    // `passcodeValidationRegularExpression`, `passcodeInvalidMessage`,
+    // `phoneNumberValidationRegularExpression`, and `phoneNumberInvalidMessage` are transparent
+    // properties. The corresponding copying of these properties happens in the answer format
+    // `-copyWithZone:` method, invoked from the super's (ORKFormStep) implementation.
     step->_options = self.options;
     return step;
 }
@@ -298,9 +360,10 @@ static NSArray <ORKFormItem*> *ORKRegistrationFormItems(ORKRegistrationStepOptio
 - (BOOL)isEqual:(id)object {
     BOOL isParentSame = [super isEqual:object];
     
-    // The `passcodeValidationRegex` and `passcodeInvalidMessage` properties
-    // are transparent properties. The `isEqual:` for these properties is
-    // defined in the answer format (super).
+    // `passcodeValidationRegularExpression`, `passcodeInvalidMessage`,
+    // `phoneNumberValidationRegularExpression`, and `phoneNumberInvalidMessage` are transparent
+    // properties. The corresponding equality test for these properties takes place in the answer
+    // format's `-isEqual:` method, invoked from super's (ORKFormStep) implementation.
     __typeof(self) castObject = object;
     return (isParentSame &&
             self.options == castObject.options);

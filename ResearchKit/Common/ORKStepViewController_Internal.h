@@ -29,7 +29,7 @@
  */
 
 
-#import "ORKStepViewController.h"
+#import <ResearchKit/ORKStepViewController.h>
 
 
 NS_ASSUME_NONNULL_BEGIN
@@ -39,6 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)stepDidChange;
 
 @property (nonatomic, copy, nullable) NSURL *outputDirectory;
+@property (nonatomic, copy, readonly, nullable) NSArray <ORKResult *> *addedResults;
 
 @property (nonatomic, strong, nullable) UIBarButtonItem *internalContinueButtonItem;
 @property (nonatomic, strong, nullable) UIBarButtonItem *internalBackButtonItem;
@@ -54,6 +55,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy, nullable) NSDate *dismissedDate;
 
 @property (nonatomic, copy, nullable) NSString *restoredStepIdentifier;
+@property (nonatomic, assign) BOOL shouldIgnoreiPadDesign;
 
 + (UIInterfaceOrientationMask)supportedInterfaceOrientations;
 
@@ -70,11 +72,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil NS_DESIGNATED_INITIALIZER;
 
-- (void)showValidityAlertWithMessage:(NSString *)text;
+- (BOOL)showValidityAlertWithMessage:(NSString *)text;
 
-- (void)showValidityAlertWithTitle:(NSString *)title message:(NSString *)message;
-
-- (void)skipForward;
+- (BOOL)showValidityAlertWithTitle:(NSString *)title message:(NSString *)message;
 
 - (void)initializeInternalButtonItems;
 
@@ -82,8 +82,16 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)ork_setBackButtonItem:(nullable UIBarButtonItem *)backButton;
 
 // internal method for updating the right bar button item.
-- (void)updateNavRightBarButtonItem;
 - (void)updateNavLeftBarButtonItem;
+
+// Use this view to layout iPad Constraints.
+- (UIView *)viewForiPadLayoutConstraints;
+
+// internal method for updating title label for iPad designs.
+- (void)setiPadStepTitleLabelText:(NSString *)text;
+
+// internal method for updating iPadBackgroundViewColor.
+- (void)setiPadBackgroundViewColor:(UIColor *)color;
 
 @end
 

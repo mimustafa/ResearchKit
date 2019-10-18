@@ -37,6 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class ORKStepNavigationRule;
 @class ORKSkipStepNavigationRule;
+@class ORKStepModifier;
 
 /**
  The `ORKNavigableOrderedTask` class adds conditional step navigation to the behavior inherited from
@@ -145,46 +146,43 @@ ORK_CLASS_AVAILABLE
 @property (nonatomic, copy, readonly) NSDictionary<NSString *, ORKSkipStepNavigationRule *> *skipStepNavigationRules;
 
 /**
+ Adds a step modifier for a step identifier.
+ 
+ @param stepModifier        The step modifier associated with this step
+ @param stepIdentifier      The identifier of the step that is checked against the skip
+ rule.
+ */
+- (void)setStepModifier:(ORKStepModifier *)stepModifier forStepIdentifier:(NSString *)stepIdentifier;
+
+/**
+ Returns the step modifier associated with a step identifier,  or `nil` if there is no
+ step modifier associated with that step identifier.
+ 
+ @param stepIdentifier      The identifier of the step to be modified
+ 
+ @return A step modifier, or `nil` if the step identifier has none.
+ */
+- (nullable ORKStepModifier *)stepModifierForStepIdentifier:(NSString *)stepIdentifier;
+
+/**
+ Removes the step modifier, if any, associated with the specified step identifier.
+ 
+ @param stepIdentifier   The identifier of the step whose rule is to be removed.
+ */
+- (void)removeStepModifierForStepIdentifier:(NSString *)stepIdentifier;
+
+/**
+ A dictionary of step modifiers in the task, keyed by trigger step identifier.
+ 
+ Each object in the dictionary should be a `ORKStepModifier` subclass.
+ */
+@property (nonatomic, copy, readonly) NSDictionary<NSString *, ORKStepModifier *> *stepModifiers;
+
+/**
  Determines whether the task should report its progress as a linear ordered task or not.
  The default value of this property is `NO`.
  */
 @property (nonatomic) BOOL shouldReportProgress;
-
-@end
-
-
-@interface ORKNavigableOrderedTask (ORKPredefinedActiveTask)
-
-/**
- Returns a predefined task that measures the upper extremity function.
- 
- In a hole peg test task, the participant is asked to fill holes with pegs.
- 
- A hole peg test task can be used to assess arm and hand function, especially in patients with severe disability.
- 
- Data collected in this task is in the form of an `ORKHolePegTestResult` object.
- 
- @param identifier              The task identifier to use for this task, appropriate to the study.
- @param intendedUseDescription  A localized string describing the intended use of the data
-                                  collected. If the value of this parameter is `nil`, the default
-                                  localized text will be displayed.
- @param dominantHand            The participant dominant hand that will be tested first.
- @param numberOfPegs            The number of pegs to place in the pegboard.
- @param threshold               The threshold value used for the detection area.
- @param rotated                 A test variant that also requires peg rotation.
- @param timeLimit               The duration allowed to validate the peg position.
- @param options                 Options that affect the features of the predefined task.
- 
- @return An active hole peg test task that can be presented with an `ORKTaskViewController` object.
- */
-+ (ORKNavigableOrderedTask *)holePegTestTaskWithIdentifier:(NSString *)identifier
-                                    intendedUseDescription:(nullable NSString *)intendedUseDescription
-                                              dominantHand:(ORKBodySagittal)dominantHand
-                                              numberOfPegs:(int)numberOfPegs
-                                                 threshold:(double)threshold
-                                                   rotated:(BOOL)rotated
-                                                 timeLimit:(NSTimeInterval)timeLimit
-                                                   options:(ORKPredefinedTaskOption)options;
 
 @end
 

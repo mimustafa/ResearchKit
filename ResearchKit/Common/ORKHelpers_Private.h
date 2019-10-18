@@ -57,7 +57,7 @@ ORK_INLINE NSArray *ORKArrayCopyObjects(NSArray *a) {
         return nil;
     }
     NSMutableArray *b = [NSMutableArray arrayWithCapacity:a.count];
-    [a enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+    [a enumerateObjectsUsingBlock:^(id obj, __unused NSUInteger idx, __unused BOOL *stop) {
         [b addObject:[obj copy]];
     }];
     return [b copy];
@@ -69,8 +69,8 @@ ORK_EXTERN NSDate *ORKDateFromStringISO8601(NSString *string) ORK_AVAILABLE_DECL
 ORK_EXTERN NSString *ORKTimeOfDayStringFromComponents(NSDateComponents *dateComponents) ORK_AVAILABLE_DECL;
 ORK_EXTERN NSDateComponents *ORKTimeOfDayComponentsFromString(NSString *string) ORK_AVAILABLE_DECL;
 
-ORK_EXTERN NSDateFormatter *ORKResultDateTimeFormatter() ORK_AVAILABLE_DECL;
-ORK_EXTERN NSDateFormatter *ORKResultTimeFormatter() ORK_AVAILABLE_DECL;
-ORK_EXTERN NSDateFormatter *ORKResultDateFormatter() ORK_AVAILABLE_DECL;
+ORK_EXTERN NSDateFormatter *ORKResultDateTimeFormatter(void) ORK_AVAILABLE_DECL;
+ORK_EXTERN NSDateFormatter *ORKResultTimeFormatter(void) ORK_AVAILABLE_DECL;
+ORK_EXTERN NSDateFormatter *ORKResultDateFormatter(void) ORK_AVAILABLE_DECL;
 
 NS_ASSUME_NONNULL_END

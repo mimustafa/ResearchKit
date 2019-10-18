@@ -31,6 +31,7 @@
 
 @import HealthKit;
 #import "ORKAnswerFormat_Private.h"
+#import "ORKChoiceAnswerFormatHelper.h"
 
 
 NS_ASSUME_NONNULL_BEGIN
@@ -50,6 +51,7 @@ NSString *ORKQuestionTypeString(ORKQuestionType questionType);
 ORK_DESIGNATE_CODING_AND_SERIALIZATION_INITIALIZERS(ORKAnswerFormat)
 ORK_DESIGNATE_CODING_AND_SERIALIZATION_INITIALIZERS(ORKImageChoiceAnswerFormat)
 ORK_DESIGNATE_CODING_AND_SERIALIZATION_INITIALIZERS(ORKValuePickerAnswerFormat)
+ORK_DESIGNATE_CODING_AND_SERIALIZATION_INITIALIZERS(ORKMultipleValuePickerAnswerFormat)
 ORK_DESIGNATE_CODING_AND_SERIALIZATION_INITIALIZERS(ORKTextChoiceAnswerFormat)
 ORK_DESIGNATE_CODING_AND_SERIALIZATION_INITIALIZERS(ORKTextChoice)
 ORK_DESIGNATE_CODING_AND_SERIALIZATION_INITIALIZERS(ORKImageChoice)
@@ -63,6 +65,7 @@ ORK_DESIGNATE_CODING_AND_SERIALIZATION_INITIALIZERS(ORKTextScaleAnswerFormat)
 ORK_DESIGNATE_CODING_AND_SERIALIZATION_INITIALIZERS(ORKTextAnswerFormat)
 ORK_DESIGNATE_CODING_AND_SERIALIZATION_INITIALIZERS(ORKTimeIntervalAnswerFormat)
 ORK_DESIGNATE_CODING_AND_SERIALIZATION_INITIALIZERS(ORKHeightAnswerFormat)
+ORK_DESIGNATE_CODING_AND_SERIALIZATION_INITIALIZERS(ORKWeightAnswerFormat)
 
 
 @class ORKQuestionResult;
@@ -71,11 +74,10 @@ ORK_DESIGNATE_CODING_AND_SERIALIZATION_INITIALIZERS(ORKHeightAnswerFormat)
 
 - (instancetype)init NS_DESIGNATED_INITIALIZER;
 
-- (ORKAnswerFormat *)impliedAnswerFormat;
-
 - (BOOL)isHealthKitAnswerFormat;
 
 - (nullable HKObjectType *)healthKitObjectType;
+- (nullable HKObjectType *)healthKitObjectTypeForAuthorization;
 
 @property (nonatomic, strong, readonly, nullable) HKUnit *healthKitUnit;
 
@@ -131,10 +133,11 @@ ORK_DESIGNATE_CODING_AND_SERIALIZATION_INITIALIZERS(ORKHeightAnswerFormat)
 - (NSInteger)numberOfSteps;
 - (nullable NSNumber *)normalizedValueForNumber:(nullable NSNumber *)number;
 - (BOOL)isVertical;
+- (BOOL)shouldHideSelectedValueLabel;
 - (NSString *)maximumValueDescription;
 - (NSString *)minimumValueDescription;
-- (UIImage *)maximumImage;
-- (UIImage *)minimumImage;
+- (nullable UIImage *)maximumImage;
+- (nullable UIImage *)minimumImage;
 - (nullable NSArray<UIColor *> *)gradientColors;
 - (nullable NSArray<NSNumber *> *)gradientLocations;
 
@@ -144,7 +147,7 @@ ORK_DESIGNATE_CODING_AND_SERIALIZATION_INITIALIZERS(ORKHeightAnswerFormat)
 @protocol ORKTextScaleAnswerFormatProvider <ORKScaleAnswerFormatProvider>
 
 - (NSArray<ORKTextChoice *> *)textChoices;
-- (ORKTextChoice *)textChoiceAtIndex:(NSUInteger)index;
+- (nullable ORKTextChoice *)textChoiceAtIndex:(NSUInteger)index;
 - (NSUInteger)textChoiceIndexForValue:(id<NSCopying, NSCoding, NSObject>)value;
 
 @end
@@ -173,6 +176,14 @@ ORK_DESIGNATE_CODING_AND_SERIALIZATION_INITIALIZERS(ORKHeightAnswerFormat)
 
 
 @interface ORKTextChoice () <ORKAnswerOption>
+
+@end
+
+@interface ORKValuePickerAnswerFormat ()
+
+- (instancetype)initWithTextChoices:(NSArray<ORKTextChoice *> *)textChoices nullChoice:(ORKTextChoice *)nullChoice NS_DESIGNATED_INITIALIZER;
+
+- (ORKTextChoice *)nullTextChoice;
 
 @end
 
@@ -219,6 +230,13 @@ ORK_DESIGNATE_CODING_AND_SERIALIZATION_INITIALIZERS(ORKHeightAnswerFormat)
 @end
 
 
+@interface ORKWeightAnswerFormat ()
+
+@property (nonatomic, readonly) BOOL useMetricSystem;
+
+@end
+
+
 @interface ORKAnswerDefaultSource : NSObject
 
 + (instancetype)sourceWithHealthStore:(HKHealthStore *)healthStore;
@@ -228,11 +246,16 @@ ORK_DESIGNATE_CODING_AND_SERIALIZATION_INITIALIZERS(ORKHeightAnswerFormat)
 
 - (void)fetchDefaultValueForAnswerFormat:(nullable ORKAnswerFormat *)answerFormat handler:(void(^)(id defaultValue, NSError *error))handler;
 
-- (HKUnit *)defaultHealthKitUnitForAnswerFormat:(ORKAnswerFormat *)answerFormat;
+- (nullable HKUnit *)defaultHealthKitUnitForAnswerFormat:(ORKAnswerFormat *)answerFormat;
 - (void)updateHealthKitUnitForAnswerFormat:(ORKAnswerFormat *)answerFormat force:(BOOL)force;
 
 @end
 
+@interface ORKTextChoiceOther()
+
+@property (nonatomic, nullable) NSString *textViewText;
+
+@end
 
 NS_ASSUME_NONNULL_END
 

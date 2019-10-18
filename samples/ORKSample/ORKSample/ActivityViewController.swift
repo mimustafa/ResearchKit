@@ -32,14 +32,14 @@ import UIKit
 import ResearchKit
 
 enum Activity: Int {
-    case survey, microphone, tapping
+    case survey, microphone, tapping, trailmaking
     
     static var allValues: [Activity] {
         var index = 0
         return Array (
             AnyIterator {
                 let returnedElement = self.init(rawValue: index)
-                index = index + 1
+                index += 1
                 return returnedElement
             }
         )
@@ -53,6 +53,8 @@ enum Activity: Int {
                 return "Microphone"
             case .tapping:
                 return "Tapping"
+            case .trailmaking:
+                return "Trail Making Test"
         }
     }
     
@@ -64,6 +66,8 @@ enum Activity: Int {
                 return "Voice evaluation"
             case .tapping:
                 return "Test tapping speed"
+            case .trailmaking:
+                return "Test visual attention"
         }
     }
 }
@@ -112,13 +116,15 @@ class ActivityViewController: UITableViewController {
                     try defaultFileManager.createDirectory(at: outputDirectory, withIntermediateDirectories: true, attributes: nil)
                     
                     taskViewController.outputDirectory = outputDirectory
-                }
-                catch let error as NSError {
+                } catch let error as NSError {
                     fatalError("The output directory for the task with UUID: \(taskViewController.taskRunUUID.uuidString) could not be created. Error: \(error.localizedDescription)")
                 }
                 
             case .tapping:
                 taskViewController = ORKTaskViewController(task: StudyTasks.tappingTask, taskRun: NSUUID() as UUID)
+            
+            case .trailmaking:
+                taskViewController = ORKTaskViewController(task: StudyTasks.trailmakingTask, taskRun: NSUUID() as UUID)
         }
 
         taskViewController.delegate = self
@@ -126,7 +132,7 @@ class ActivityViewController: UITableViewController {
     }
 }
 
-extension ActivityViewController : ORKTaskViewControllerDelegate {
+extension ActivityViewController: ORKTaskViewControllerDelegate {
     
     func taskViewController(_ taskViewController: ORKTaskViewController, didFinishWith reason: ORKTaskViewControllerFinishReason, error: Error?) {
         // Handle results using taskViewController.result

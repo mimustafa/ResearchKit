@@ -35,31 +35,47 @@
 
 #import "ORKHelpers_Internal.h"
 
+#import "ORKQuestionResult_Private.h"
+#import "ORKResult.h"
+
 
 #pragma mark - ORKHealthAnswerFormat
+
+ORKBiologicalSexIdentifier const ORKBiologicalSexIdentifierFemale = @"HKBiologicalSexFemale";
+ORKBiologicalSexIdentifier const ORKBiologicalSexIdentifierMale = @"HKBiologicalSexMale";
+ORKBiologicalSexIdentifier const ORKBiologicalSexIdentifierOther = @"HKBiologicalSexOther";
 
 NSString *ORKHKBiologicalSexString(HKBiologicalSex biologicalSex) {
     NSString *string = nil;
     switch (biologicalSex) {
-        case HKBiologicalSexFemale: string = @"HKBiologicalSexFemale"; break;
-        case HKBiologicalSexMale:   string = @"HKBiologicalSexMale";   break;
-        case HKBiologicalSexOther:  string = @"HKBiologicalSexOther";  break;
+        case HKBiologicalSexFemale: string = ORKBiologicalSexIdentifierFemale; break;
+        case HKBiologicalSexMale:   string = ORKBiologicalSexIdentifierMale;   break;
+        case HKBiologicalSexOther:  string = ORKBiologicalSexIdentifierOther;  break;
         case HKBiologicalSexNotSet: break;
     }
     return string;
 }
 
+ORKBloodTypeIdentifier const ORKBloodTypeIdentifierAPositive = @"HKBloodTypeAPositive";
+ORKBloodTypeIdentifier const ORKBloodTypeIdentifierANegative = @"HKBloodTypeANegative";
+ORKBloodTypeIdentifier const ORKBloodTypeIdentifierBPositive = @"HKBloodTypeBPositive";
+ORKBloodTypeIdentifier const ORKBloodTypeIdentifierBNegative = @"HKBloodTypeBNegative";
+ORKBloodTypeIdentifier const ORKBloodTypeIdentifierABPositive = @"HKBloodTypeABPositive";
+ORKBloodTypeIdentifier const ORKBloodTypeIdentifierABNegative = @"HKBloodTypeABNegative";
+ORKBloodTypeIdentifier const ORKBloodTypeIdentifierOPositive = @"HKBloodTypeOPositive";
+ORKBloodTypeIdentifier const ORKBloodTypeIdentifierONegative = @"HKBloodTypeONegative";
+
 NSString *ORKHKBloodTypeString(HKBloodType bloodType) {
     NSString *string = nil;
     switch (bloodType) {
-        case HKBloodTypeAPositive:  string = @"HKBloodTypeAPositive";   break;
-        case HKBloodTypeANegative:  string = @"HKBloodTypeANegative";   break;
-        case HKBloodTypeBPositive:  string = @"HKBloodTypeBPositive";   break;
-        case HKBloodTypeBNegative:  string = @"HKBloodTypeBNegative";   break;
-        case HKBloodTypeABPositive: string = @"HKBloodTypeABPositive";  break;
-        case HKBloodTypeABNegative: string = @"HKBloodTypeABNegative";  break;
-        case HKBloodTypeOPositive:  string = @"HKBloodTypeOPositive";   break;
-        case HKBloodTypeONegative:  string = @"HKBloodTypeONegative";   break;
+        case HKBloodTypeAPositive:  string = ORKBloodTypeIdentifierAPositive;   break;
+        case HKBloodTypeANegative:  string = ORKBloodTypeIdentifierANegative;   break;
+        case HKBloodTypeBPositive:  string = ORKBloodTypeIdentifierBPositive;   break;
+        case HKBloodTypeBNegative:  string = ORKBloodTypeIdentifierBNegative;   break;
+        case HKBloodTypeABPositive: string = ORKBloodTypeIdentifierABPositive;  break;
+        case HKBloodTypeABNegative: string = ORKBloodTypeIdentifierABNegative;  break;
+        case HKBloodTypeOPositive:  string = ORKBloodTypeIdentifierOPositive;   break;
+        case HKBloodTypeONegative:  string = ORKBloodTypeIdentifierONegative;   break;
         case HKBloodTypeNotSet: break;
     }
     return string;
@@ -96,6 +112,15 @@ NSString *ORKHKBloodTypeString(HKBloodType bloodType) {
     return _characteristicType;
 }
 
+- (HKObjectType *)healthKitObjectTypeForAuthorization {
+    if (self.shouldRequestAuthorization) {
+        return [self healthKitObjectType];
+    }
+    else {
+        return nil;
+    }
+}
+
 - (Class)questionResultClass {
     return [[self impliedAnswerFormat] questionResultClass];
 }
@@ -110,6 +135,7 @@ NSString *ORKHKBloodTypeString(HKBloodType bloodType) {
     if (self) {
         // Characteristic types are immutable, so this should be equivalent to -copy
         _characteristicType = characteristicType;
+        _shouldRequestAuthorization = YES;
     }
     return self;
 }
@@ -172,8 +198,24 @@ NSString *ORKHKBloodTypeString(HKBloodType bloodType) {
                                                                                    maximumDate:maximumDate
                                                                                       calendar:calendar];
             _impliedAnswerFormat = format;
+        } else if ([identifier isEqualToString:HKCharacteristicTypeIdentifierFitzpatrickSkinType]) {
+            NSArray *options = @[[ORKTextChoice choiceWithText:ORKLocalizedString(@"FITZPATRICK_SKIN_TYPE_I", nil) value:@(HKFitzpatrickSkinTypeI)],
+                                 [ORKTextChoice choiceWithText:ORKLocalizedString(@"FITZPATRICK_SKIN_TYPE_II", nil) value:@(HKFitzpatrickSkinTypeII)],
+                                 [ORKTextChoice choiceWithText:ORKLocalizedString(@"FITZPATRICK_SKIN_TYPE_III", nil) value:@(HKFitzpatrickSkinTypeIII)],
+                                 [ORKTextChoice choiceWithText:ORKLocalizedString(@"FITZPATRICK_SKIN_TYPE_IV", nil) value:@(HKFitzpatrickSkinTypeIV)],
+                                 [ORKTextChoice choiceWithText:ORKLocalizedString(@"FITZPATRICK_SKIN_TYPE_V", nil) value:@(HKFitzpatrickSkinTypeV)],
+                                 [ORKTextChoice choiceWithText:ORKLocalizedString(@"FITZPATRICK_SKIN_TYPE_VI", nil) value:@(HKFitzpatrickSkinTypeVI)],
+                                 ];
+            ORKValuePickerAnswerFormat *format = [ORKAnswerFormat valuePickerAnswerFormatWithTextChoices:options];
+            _impliedAnswerFormat = format;
+        } else if (ORK_IOS_10_WATCHOS_3_AVAILABLE && [identifier isEqualToString:HKCharacteristicTypeIdentifierWheelchairUse]) {
+            ORKBooleanAnswerFormat *boolAnswerFormat = [ORKAnswerFormat booleanAnswerFormat];
+            _impliedAnswerFormat = boolAnswerFormat.impliedAnswerFormat;
         }
     }
+    
+    NSAssert(_impliedAnswerFormat, @"_impliedAnswerFormat should have been set");
+
     return _impliedAnswerFormat;
 }
 
@@ -185,6 +227,7 @@ NSString *ORKHKBloodTypeString(HKBloodType bloodType) {
         ORK_DECODE_OBJ_CLASS(aDecoder, minimumDate, NSDate);
         ORK_DECODE_OBJ_CLASS(aDecoder, maximumDate, NSDate);
         ORK_DECODE_OBJ_CLASS(aDecoder, calendar, NSCalendar);
+        ORK_DECODE_BOOL(aDecoder, shouldRequestAuthorization);
     }
     return self;
 }
@@ -196,6 +239,7 @@ NSString *ORKHKBloodTypeString(HKBloodType bloodType) {
     ORK_ENCODE_OBJ(aCoder, minimumDate);
     ORK_ENCODE_OBJ(aCoder, maximumDate);
     ORK_ENCODE_OBJ(aCoder, calendar);
+    ORK_ENCODE_BOOL(aCoder, shouldRequestAuthorization);
 }
 
 + (BOOL)supportsSecureCoding {
@@ -233,6 +277,15 @@ NSString *ORKHKBloodTypeString(HKBloodType bloodType) {
     return _quantityType;
 }
 
+- (HKObjectType *)healthKitObjectTypeForAuthorization {
+    if (self.shouldRequestAuthorization) {
+        return [self healthKitObjectType];
+    }
+    else {
+        return nil;
+    }
+}
+
 - (ORKQuestionType)questionType {
     return [[self impliedAnswerFormat] questionType];
 }
@@ -253,6 +306,7 @@ NSString *ORKHKBloodTypeString(HKBloodType bloodType) {
         _quantityType = quantityType;
         _unit = unit;
         _numericAnswerStyle = style;
+        _shouldRequestAuthorization = YES;
     }
     return self;
 }
@@ -276,21 +330,25 @@ NSString *ORKHKBloodTypeString(HKBloodType bloodType) {
         return _impliedAnswerFormat;
     }
     
-    if (_quantityType) {
-        if ([_quantityType.identifier isEqualToString:HKQuantityTypeIdentifierHeight]) {
-            ORKHeightAnswerFormat *format = [ORKDateAnswerFormat heightAnswerFormat];
-            _impliedAnswerFormat = format;
-        } else {
+    if ([_quantityType.identifier isEqualToString:HKQuantityTypeIdentifierHeight]) {
+        ORKHeightAnswerFormat *format = [ORKHeightAnswerFormat heightAnswerFormat];
+        _impliedAnswerFormat = format;
+        _unit = [HKUnit meterUnitWithMetricPrefix:(HKMetricPrefixCenti)];
+    } else if ([_quantityType.identifier isEqualToString:HKQuantityTypeIdentifierBodyMass]) {
+        ORKWeightAnswerFormat *format = [ORKWeightAnswerFormat weightAnswerFormat];
+        _impliedAnswerFormat = format;
+        _unit = [HKUnit gramUnitWithMetricPrefix:(HKMetricPrefixKilo)];
+    } else {
         ORKNumericAnswerFormat *format = nil;
-            HKUnit *unit = [self healthKitUserUnit];
+        HKUnit *unit = [self healthKitUserUnit];
         if (_numericAnswerStyle == ORKNumericAnswerStyleDecimal) {
-            format = [ORKNumericAnswerFormat decimalAnswerFormatWithUnit:[unit unitString]];
+            format = [ORKNumericAnswerFormat decimalAnswerFormatWithUnit:[unit localizedUnitString]];
         } else {
-            format = [ORKNumericAnswerFormat integerAnswerFormatWithUnit:[unit unitString]];
-            }
-            _impliedAnswerFormat = format;
+            format = [ORKNumericAnswerFormat integerAnswerFormatWithUnit:[unit localizedUnitString]];
         }
+        _impliedAnswerFormat = format;
     }
+
     return _impliedAnswerFormat;
 }
 
@@ -311,12 +369,25 @@ NSString *ORKHKBloodTypeString(HKBloodType bloodType) {
     }
 }
 
+- (id)resultWithIdentifier:(NSString *)identifier answer:(id)answer {
+    id result = [super resultWithIdentifier:identifier answer:answer];
+    if ([result isKindOfClass:[ORKNumericQuestionResult class]]) {
+        ORKNumericQuestionResult *questionResult = (ORKNumericQuestionResult *)result;
+        if (questionResult.unit == nil) {
+            // The unit should *not* be localized.
+            questionResult.unit = [self healthKitUserUnit].unitString;
+        }
+    }
+    return result;
+}
+
 - (instancetype)initWithCoder:(NSCoder *)aDecoder {
     self = [super initWithCoder:aDecoder];
     if (self) {
         ORK_DECODE_OBJ_CLASS(aDecoder, quantityType, HKQuantityType);
         ORK_DECODE_OBJ_CLASS(aDecoder, unit, HKUnit);
         ORK_DECODE_ENUM(aDecoder, numericAnswerStyle);
+        ORK_DECODE_BOOL(aDecoder, shouldRequestAuthorization);
     }
     return self;
 }
@@ -326,10 +397,26 @@ NSString *ORKHKBloodTypeString(HKBloodType bloodType) {
     ORK_ENCODE_OBJ(aCoder, quantityType);
     ORK_ENCODE_ENUM(aCoder, numericAnswerStyle);
     ORK_ENCODE_OBJ(aCoder, unit);
+    ORK_ENCODE_BOOL(aCoder, shouldRequestAuthorization);
 }
 
 + (BOOL)supportsSecureCoding {
     return YES;
+}
+
+@end
+
+
+@implementation HKUnit (ORKLocalized)
+
+- (NSString *)localizedUnitString {
+    NSUnit *unit = [[NSUnit alloc] initWithSymbol:self.unitString];
+    if (unit != nil) {
+        NSMeasurementFormatter *formatter = [[NSMeasurementFormatter alloc] init];
+        formatter.unitOptions = NSMeasurementFormatterUnitOptionsProvidedUnit;
+        return [formatter stringFromUnit:unit];
+    }
+    return self.unitString;
 }
 
 @end

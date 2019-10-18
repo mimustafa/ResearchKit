@@ -1,6 +1,8 @@
 ResearchKit Framework
 ===========
 
+![VCS](https://img.shields.io/badge/dvcs-Git%20%2B%20LFS-tomato.svg) ![Platform](https://img.shields.io/cocoapods/p/ResearchKit.svg) ![CocoaPods](https://img.shields.io/cocoapods/v/ResearchKit.svg) ![Carthage Compatible](https://img.shields.io/badge/Carthage-compatible-yellow.svg?style=flat) [![License](https://img.shields.io/badge/license-BSD-green.svg?style=flat)](https://github.com/ResearchKit/ResearchKit#license) ![](https://travis-ci.com/ResearchKit/ResearchKit.svg?branch=master)
+
 The *ResearchKit™ framework* is an open source software framework that makes it easy to create apps
 for medical research or for other research projects.
 
@@ -52,6 +54,7 @@ available through use of the *HealthKit* and *CoreMotion* APIs if you are progra
 while *iPhone* sensors actively collect data. See
 *[Active Tasks](http://researchkit.org/docs/docs/ActiveTasks/ActiveTasks.html)* for more
 information.
+ResearchKit active tasks are not diagnostic tools nor medical devices of any kind and output from those active tasks may not be used for diagnosis. Developers and researchers are responsible for complying with all applicable laws and regulations with respect to further development and use of the active tasks.
 
 Charts
 ------------
@@ -187,9 +190,9 @@ taskViewController.delegate = self;
 *Swift*
 
 ```swift
-let taskViewController = ORKTaskViewController(task: task, taskRunUUID: nil)
+let taskViewController = ORKTaskViewController(task: task, taskRun: nil)
 taskViewController.delegate = self
-presentViewController(taskViewController, animated: true, completion: nil)
+present(taskViewController, animated: true, completion: nil)
 ```
 
 The above snippet assumes that your class implements the `ORKTaskViewControllerDelegate` protocol.
@@ -214,14 +217,14 @@ This has just one required method, which you must implement in order to handle t
 *Swift*
 
 ```swift
-func taskViewController(taskViewController: ORKTaskViewController,
-                didFinishWithReason reason: ORKTaskViewControllerFinishReason,
-                                     error: NSError?) {
-  let taskResult = taskViewController.result
-  // You could do something with the result here.
+func taskViewController(_ taskViewController: ORKTaskViewController, 
+                didFinishWith reason: ORKTaskViewControllerFinishReason, 
+                                    error: Error?) {
+    let taskResult = taskViewController.result
+    // You could do something with the result here.
 
-  // Then, dismiss the task view controller.
-  dismissViewControllerAnimated(true, completion: nil)
+    // Then, dismiss the task view controller.
+    dismiss(animated: true, completion: nil)
 }
 ```
 
@@ -253,7 +256,7 @@ The source in the *ResearchKit* repository is made available under the following
 another license is explicitly identified:
 
 ```
-Copyright (c) 2015, Apple Inc. All rights reserved.
+Copyright (c) 2015 - 2018, Apple Inc. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:

@@ -56,6 +56,9 @@
 @end
 
 
+static const CGFloat TopToSigningLineRatio = 0.7;
+
+
 @implementation ORKSignatureGestureRecognizer
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
@@ -79,6 +82,7 @@
 }
 
 - (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event {
+    (void)touches; (void)event;
     self.state = UIGestureRecognizerStateFailed;
 }
 
@@ -137,6 +141,11 @@ static const CGFloat LineWidthStepValue = 0.25f;
     if (self) {
         _lineWidth = DefaultLineWidth;
         _lineWidthVariation = DefaultLineWidthVariation;
+        
+        self.layer.borderColor = [[UIColor ork_midGrayTintColor] CGColor];
+        self.layer.borderWidth = 1.0;
+        self.layer.cornerRadius = 10.0;
+        
         [self makeSignatureGestureRecognizer];
         [self setUpConstraints];
     }
@@ -167,7 +176,7 @@ static const CGFloat LineWidthStepValue = 0.25f;
 
     _widthConstraint = [NSLayoutConstraint constraintWithItem:self
                                                     attribute:NSLayoutAttributeWidth
-                                                    relatedBy:NSLayoutRelationEqual
+                                                    relatedBy:NSLayoutRelationGreaterThanOrEqual
                                                        toItem:nil
                                                     attribute:NSLayoutAttributeNotAnAttribute
                                                    multiplier:1.0
@@ -224,16 +233,11 @@ static const CGFloat LineWidthStepValue = 0.25f;
     return _pathArray;
 }
 
-- (CGPoint)placeholderPoint {
+- (CGFloat)placeholderPoint {
     CGFloat height = self.bounds.size.height;
-    
-    CGFloat bottom = 0.90;
-    
-    CGFloat x1 = 0;
-        
-    CGFloat y1 = height*bottom;
+    CGFloat y1 = height * TopToSigningLineRatio;
     UIFont *font = [ORKSelectionTitleLabel defaultFont];
-    return (CGPoint){x1, y1 - 5 - font.pointSize + font.descender};
+    return y1 - 5 - font.pointSize + font.descender;
 }
 
 - (NSArray *)backgroundLines {
@@ -242,14 +246,12 @@ static const CGFloat LineWidthStepValue = 0.25f;
         CGFloat height = self.bounds.size.height;
         
         UIBezierPath *path = [UIBezierPath bezierPath];
-        
-        CGFloat bottom = 0.90;
         {
             CGFloat x1 = 0;
             CGFloat x2 = width;
             
-            CGFloat y1 = height*bottom;
-            CGFloat y2 = height*bottom;
+            CGFloat y1 = height * TopToSigningLineRatio;
+            CGFloat y2 = height * TopToSigningLineRatio;
             
             [path moveToPoint:CGPointMake(x1, y1)];
             [path addLineToPoint:CGPointMake(x2, y2)];
@@ -262,15 +264,15 @@ static const CGFloat LineWidthStepValue = 0.25f;
 
 #pragma mark Touch Event Handlers
 
-- (BOOL)_isForceTouchAvailable {
+- (BOOL)isForceTouchAvailable {
     static BOOL isAvailable;
     static dispatch_once_t onceToken;
     
     dispatch_once(&onceToken, ^{
         
         isAvailable = NO;
-        if ([self.traitCollection respondsToSelector:@selector(forceTouchCapability)] && 
-             self.traitCollection.forceTouchCapability == UIForceTouchCapabilityAvailable) {
+        if ([self.traitCollection respondsToSelector:@selector(forceTouchCapability)] &&
+            self.traitCollection.forceTouchCapability == UIForceTouchCapabilityAvailable) {
             isAvailable = YES;
         }
     });
@@ -278,7 +280,7 @@ static const CGFloat LineWidthStepValue = 0.25f;
     return isAvailable;
 }
 
-- (BOOL)_isTouchTypeStylus:(UITouch*)touch {
+- (BOOL)isTouchTypeStylus:(UITouch*)touch {
     BOOL isStylus = NO;
     
     if ([touch respondsToSelector:@selector(type)] && touch.type == UITouchTypeStylus) {
@@ -300,7 +302,7 @@ static const CGFloat LineWidthStepValue = 0.25f;
     previousPoint2 = [touch previousLocationInView:self];
     currentPoint = [touch locationInView:self];
     
-    if ([self _isForceTouchAvailable] || [self _isTouchTypeStylus:touch]) {
+    if ([self isForceTouchAvailable] || [self isTouchTypeStylus:touch]) {
         // This is a scale based on true force on the screen.
         minPressure = 0.f;
         maxPressure = [touch maximumPossibleForce] / 2.f;
@@ -337,23 +339,20 @@ static CGPoint mmid_Point(CGPoint p1, CGPoint p2) {
         return;
     }
     
-    // Default to the minimum. Will be assigned a real
-    // value on all devices.
-    CGFloat pressure = minPressure;
-    
-    if ([self _isForceTouchAvailable] || [self _isTouchTypeStylus:touch]) {
+    // Will be assigned a real value on all devices.
+    CGFloat pressure;
+    if ([self isForceTouchAvailable] || [self isTouchTypeStylus:touch]) {
         // If the device supports Force Touch, or is using a stylus, use it.
         pressure = [touch force];
-    }
-    else {
+    } else {
         // If not, use a heuristic based on the speed of
         // the stroke. Scale this speed logarithmically to
         // require very slow touches to max out the line width.
         
         // This value can become negative because of how it is
         // inverted. It will be clamped right below.
-        pressure = maxPressure - logf((sqrt(distanceSquared) /
-                                            MAX(0.0001, event.timestamp - previousTouchTime)));
+        pressure = maxPressure - log((sqrt(distanceSquared) /
+                                      MAX(0.0001, event.timestamp - previousTouchTime)));
         previousTouchTime = event.timestamp;
     }
     
@@ -432,17 +431,6 @@ static CGPoint mmid_Point(CGPoint p1, CGPoint p2) {
     [[UIColor whiteColor] setFill];
     CGContextFillRect(UIGraphicsGetCurrentContext(), rect);
     
-    for (UIBezierPath *path in self.backgroundLines) {
-        [[[UIColor blackColor] colorWithAlphaComponent:0.2] setStroke];
-        [path stroke];
-    }
-    
-    if (![self signatureExists] && (!self.currentPath || [self.currentPath isEmpty])) {
-        [ORKLocalizedString(@"CONSENT_SIGNATURE_PLACEHOLDER", nil) drawAtPoint:[self placeholderPoint]
-                                           withAttributes:@{ NSFontAttributeName: [ORKSelectionTitleLabel defaultFont],
-                                                             NSForegroundColorAttributeName: [[UIColor blackColor] colorWithAlphaComponent:0.2]}];
-    }
-    
     for (UIBezierPath *path in self.pathArray) {
         [self.lineColor setStroke];
         [path stroke];
@@ -464,8 +452,11 @@ static CGPoint mmid_Point(CGPoint p1, CGPoint p2) {
 }
 
 - (UIImage *)signatureImage {
-    UIGraphicsBeginImageContext(self.bounds.size);
-    
+    CGSize imageContextSize;
+    imageContextSize = (self.bounds.size.width == 0 || self.bounds.size.height == 0) ? CGSizeMake(200, 200) :
+                        self.bounds.size;
+    UIGraphicsBeginImageContext(imageContextSize);
+
     for (UIBezierPath *path in self.pathArray) {
         [self.lineColor setStroke];
         [path stroke];
@@ -499,15 +490,15 @@ static CGPoint mmid_Point(CGPoint p1, CGPoint p2) {
 }
 
 - (NSString *)accessibilityLabel {
-    return ORKLocalizedString(@"AX_SIGNVIEW_LABEL", nil);
+    return ORKLocalizedString(@"AX_SIGNVIEW_LABEL", @"comment");
 }
 
 - (NSString *)accessibilityValue {
-    return (self.signatureExists ? ORKLocalizedString(@"AX_SIGNVIEW_SIGNED", nil) : ORKLocalizedString(@"AX_SIGNVIEW_UNSIGNED", nil));
+    return (self.signatureExists ? ORKLocalizedString(@"AX_SIGNVIEW_SIGNED", @"comment") : ORKLocalizedString(@"AX_SIGNVIEW_UNSIGNED", @"comment"));
 }
 
 - (NSString *)accessibilityHint {
-    return ORKLocalizedString(@"AX_SIGNVIEW_HINT", nil);
+    return ORKLocalizedString(@"AX_SIGNVIEW_HINT", @"comment");
 }
 
 - (UIAccessibilityTraits)accessibilityTraits {

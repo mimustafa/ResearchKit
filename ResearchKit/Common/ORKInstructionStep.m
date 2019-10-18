@@ -30,22 +30,14 @@
 
 
 #import "ORKInstructionStep.h"
-
 #import "ORKInstructionStepViewController.h"
-
 #import "ORKStep_Private.h"
-
 #import "ORKHelpers_Internal.h"
 
 
 @implementation ORKInstructionStep
 
-- (void)setAuxiliaryImage:(UIImage *)auxiliaryImage {
-    _auxiliaryImage = auxiliaryImage;
-    if (auxiliaryImage) {
-        self.shouldTintImages = YES;
-    }
-}
+
 
 + (Class)stepViewControllerClass {
     return [ORKInstructionStepViewController class];
@@ -54,20 +46,13 @@
 - (instancetype)initWithCoder:(NSCoder *)aDecoder {
     self = [super initWithCoder:aDecoder];
     if (self) {
-        ORK_DECODE_OBJ_CLASS(aDecoder, detailText, NSString);
-        ORK_DECODE_IMAGE(aDecoder, image);
-        ORK_DECODE_IMAGE(aDecoder, auxiliaryImage);
-        ORK_DECODE_IMAGE(aDecoder, iconImage);
+        ORK_DECODE_OBJ_CLASS(aDecoder, attributedDetailText, NSAttributedString);
     }
     return self;
 }
 
 - (void)encodeWithCoder:(NSCoder *)aCoder {
     [super encodeWithCoder:aCoder];
-    ORK_ENCODE_OBJ(aCoder, detailText);
-    ORK_ENCODE_IMAGE(aCoder, image);
-    ORK_ENCODE_IMAGE(aCoder, auxiliaryImage);
-    ORK_ENCODE_IMAGE(aCoder, iconImage);
 }
 
 + (BOOL)supportsSecureCoding {
@@ -76,26 +61,15 @@
 
 - (instancetype)copyWithZone:(NSZone *)zone {
     ORKInstructionStep *step = [super copyWithZone:zone];
-    step.detailText = self.detailText;
-    step.image = self.image;
-    step.auxiliaryImage = self.auxiliaryImage;
-    step.iconImage = self.iconImage;
     return step;
 }
 
 - (BOOL)isEqual:(id)object {
-    BOOL isParentSame = [super isEqual:object];
-    
-    __typeof(self) castObject = object;
-    return isParentSame &&
-        ORKEqualObjects(self.detailText, castObject.detailText) &&
-        ORKEqualObjects(self.image, castObject.image) &&
-        ORKEqualObjects(self.auxiliaryImage, castObject.auxiliaryImage) &&
-        ORKEqualObjects(self.iconImage, castObject.iconImage);
+    return [super isEqual:object];
 }
 
 - (NSUInteger)hash {
-    return super.hash ^ self.detailText.hash;
+    return super.hash;
 }
 
 @end

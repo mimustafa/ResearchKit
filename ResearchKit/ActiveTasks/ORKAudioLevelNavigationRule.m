@@ -32,7 +32,8 @@
 
 #import "ORKAudioLevelNavigationRule.h"
 
-#import "ORKResult.h"
+#import "ORKCollectionResult_Private.h"
+#import "ORKFileResult.h"
 #import "ORKResultPredicate.h"
 #import "ORKStepNavigationRule_Internal.h"
 
@@ -58,6 +59,14 @@ Float32 const VolumeClamp = 60.0;
 
 @implementation ORKAudioLevelNavigationRule
 
++ (instancetype)new {
+    ORKThrowMethodUnavailableException();
+}
+
+- (instancetype)init {
+    ORKThrowMethodUnavailableException();
+}
+
 - (instancetype)initWithAudioLevelStepIdentifier:(NSString *)audioLevelStepIdentifier
                        destinationStepIdentifier:(NSString *)destinationStepIdentifier
                                recordingSettings:(NSDictionary *)recordingSettings
@@ -65,7 +74,7 @@ Float32 const VolumeClamp = 60.0;
     ORKThrowInvalidArgumentExceptionIfNil(audioLevelStepIdentifier);
     ORKThrowInvalidArgumentExceptionIfNil(destinationStepIdentifier);
     ORKThrowInvalidArgumentExceptionIfNil(recordingSettings);
-    self = [super init_ork];
+    self = [super init];
     if (self) {
         _audioLevelStepIdentifier = [audioLevelStepIdentifier copy];
         _destinationStepIdentifier = [destinationStepIdentifier copy];

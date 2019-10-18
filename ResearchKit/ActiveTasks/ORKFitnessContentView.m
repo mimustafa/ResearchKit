@@ -226,7 +226,7 @@
                                                                                       toItem:nil
                                                                                    attribute:NSLayoutAttributeNotAnAttribute
                                                                                   multiplier:1.0
-                                                                                    constant:ORKScreenMetricMaxDimension];
+                                                                                    constant:CGFLOAT_MIN];
     imageSpacerHeightConstraint.priority = UILayoutPriorityDefaultLow - 1;
     [constraints addObject:imageSpacerHeightConstraint];
     
@@ -319,7 +319,7 @@
     HKQuantity *quantity = [HKQuantity quantityWithUnit:[HKUnit meterUnit] doubleValue:displayDistance];
     distanceString = [_lengthFormatter.numberFormatter stringFromNumber:@([quantity doubleValueForUnit:hkUnit]*conversionFactor)];
     
-    [self distanceView].title = [NSString stringWithFormat:ORKLocalizedString(@"FITNESS_DISTANCE_TITLE_FORMAT", nil), unitString];
+    [self distanceView].title = [NSString localizedStringWithFormat:ORKLocalizedString(@"FITNESS_DISTANCE_TITLE_FORMAT", nil), unitString];
     [self distanceView].value = distanceString;
 }
 

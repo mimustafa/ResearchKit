@@ -123,8 +123,8 @@ static NSString *const FilledBulletString = @"\u25CF";
 }
 
 - (NSString *)accessibilityValue {
-    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:FilledBulletString options:NSRegularExpressionCaseInsensitive error:nil];
-    NSUInteger numberOfFilledBullets = [regex numberOfMatchesInString:self.text options:0 range:NSMakeRange(0, [self.text length])];
+    NSRegularExpression *regularExpression = [NSRegularExpression regularExpressionWithPattern:FilledBulletString options:NSRegularExpressionCaseInsensitive error:nil];
+    NSUInteger numberOfFilledBullets = [regularExpression numberOfMatchesInString:self.text options:0 range:NSMakeRange(0, [self.text length])];
     return [NSString stringWithFormat:ORKLocalizedString(@"PASSCODE_TEXTFIELD_ACCESSIBILTIY_VALUE", nil), ORKLocalizedStringFromNumber(@(numberOfFilledBullets)), ORKLocalizedStringFromNumber(@([self.text length]))];
 }
 
@@ -372,6 +372,10 @@ static const UIEdgeInsets paddingGuess = (UIEdgeInsets){.left = 2, .right = 6};
     
     // Make sure it can't escape out the right of the view
     suffixFrame.origin.x = MIN(xOffset, xMaximum);
+    
+    suffixFrame.size.height = CGRectGetHeight(self.bounds);
+    suffixFrame.origin.y = 0;
+    
     return suffixFrame;
 }
 

@@ -191,14 +191,6 @@ The default value of this property is `NO`.
 @property (nonatomic, copy, nullable) NSString *finishedSpokenInstruction;
 
 /**
- An image to be displayed below the instructions for the step.
- 
- The image can be stretched to fit the available space. When choosing a size
- for this asset, be sure to take into account the variations in device form factors.
- */
-@property (nonatomic, strong, nullable) UIImage *image;
-
-/**
  An array of recorder configurations that define the parameters for recorders to be
  run during a step to collect sensor or other data.
  
@@ -213,18 +205,6 @@ The default value of this property is `NO`.
  See also: `ORKRecorderConfiguration` and `ORKRecorder`.
  */
 @property (nonatomic, copy, nullable) NSArray<ORKRecorderConfiguration *> *recorderConfigurations;
-
-/**
- The set of HealthKit types the step requests for reading. (read-only)
- 
- The task view controller uses this set of types when constructing a list of
- all the HealthKit types required by all the steps in a task, so that it can
- present the HealthKit access dialog just once during that task.
- 
- By default, the property scans the recorders and collates the HealthKit
- types the recorders require. Subclasses may override this implementation.
- */
-@property (nonatomic, readonly, nullable) NSSet<HKObjectType *> *requestedHealthKitTypesForReading;
 
 @end
 

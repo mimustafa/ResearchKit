@@ -37,6 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class ORKAnswerFormat;
 @class ORKFormItem;
+@class ORKLearnMoreItem;
 
 /**
  The `ORKFormStep` class is a concrete subclass of `ORKStep`, used for presenting multiple questions
@@ -84,6 +85,11 @@ ORK_CLASS_AVAILABLE
  when it is presented.
  */
 @property (nonatomic, copy, nullable) NSArray<ORKFormItem *> *formItems;
+
+/**
+ The property to present the form with all the items in a card view. Default to YES;
+ */
+@property (nonatomic) BOOL useCardView;
 
 @end
 
@@ -142,6 +148,10 @@ ORK_CLASS_AVAILABLE
  */
 - (instancetype)initWithSectionTitle:(nullable NSString *)sectionTitle;
 
+- (instancetype)initWithSectionTitle:(nullable NSString *)sectionTitle
+                          detailText:(nullable NSString *)text
+                       learnMoreItem:(nullable ORKLearnMoreItem *)learnMoreItem
+                       showsProgress:(BOOL)showsProgress;
 /**
  A string that identifies the form item.
  
@@ -167,6 +177,12 @@ ORK_CLASS_AVAILABLE
  */
 @property (nonatomic, copy, readonly, nullable) NSString *text;
 
+@property (nonatomic, copy, readonly, nullable) NSString *detailText;
+
+@property (nonatomic, readonly) BOOL showsProgress;
+
+@property (nonatomic, copy, readonly, nullable) ORKLearnMoreItem *learnMoreItem;
+
 /**
  A localized string that displays placeholder information for the form item.
  
@@ -185,6 +201,11 @@ ORK_CLASS_AVAILABLE
  header is always `nil`, because no answer is expected.
  */
 @property (nonatomic, copy, readonly, nullable) ORKAnswerFormat *answerFormat;
+
+/**
+ A predicate that when true, hides the item from display.
+ */
+@property (nonatomic, nullable) NSPredicate *hidePredicate;
 
 /**
  Returns an form item that can be used for confirming a text entry.

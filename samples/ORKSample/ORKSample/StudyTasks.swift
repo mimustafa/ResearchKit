@@ -46,6 +46,12 @@ struct StudyTasks {
         return ORKOrderedTask.twoFingerTappingIntervalTask(withIdentifier: "TappingTask", intendedUseDescription: intendedUseDescription, duration: 10, handOptions: .both, options: ORKPredefinedTaskOption())
     }()
     
+    static let trailmakingTask: ORKOrderedTask = {
+        let intendedUseDescription = "Tests visual attention and task switching"
+        
+        return ORKOrderedTask.trailmakingTask(withIdentifier: "TrailmakingTask", intendedUseDescription: intendedUseDescription, trailmakingInstruction: nil, trailType: .B, options: ORKPredefinedTaskOption())
+    }()
+    
     static let surveyTask: ORKOrderedTask = {
         var steps = [ORKStep]()
         
@@ -84,7 +90,7 @@ struct StudyTasks {
             (UIImage(named: "pentagon")!, "Pentagon"),
             (UIImage(named: "circle")!, "Circle")
         ]
-        let imageChoices : [ORKImageChoice] = shapeTuples.map {
+        let imageChoices: [ORKImageChoice] = shapeTuples.map {
             return ORKImageChoice(normalImage: $0.0, selectedImage: nil, text: $0.1, value: $0.1 as NSCoding & NSCopying & NSObjectProtocol)
         }
         let shapeAnswerFormat: ORKImageChoiceAnswerFormat = ORKAnswerFormat.choiceAnswerFormat(with: imageChoices)
@@ -94,7 +100,7 @@ struct StudyTasks {
         
         // Date question
         let today = NSDate()
-        let dateAnswerFormat =  ORKAnswerFormat.dateAnswerFormat(withDefaultDate: nil, minimumDate: today as Date, maximumDate: nil, calendar: nil)
+        let dateAnswerFormat = ORKAnswerFormat.dateAnswerFormat(withDefaultDate: nil, minimumDate: today as Date, maximumDate: nil, calendar: nil)
         let dateQuestionStepTitle = "When is the next solar eclipse?"
         let dateQuestionStep = ORKQuestionStep(identifier: "DateQuestionStep", title: dateQuestionStepTitle, answer: dateAnswerFormat)
         
